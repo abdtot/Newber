@@ -1,0 +1,2819 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2c7873">
+    <title>سيستار برو - نظام إدارة الآبار</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --md-sys-color-primary: #2c7873;
+            --md-sys-color-primary-dark: #1a4a46;
+            --md-sys-color-secondary: #ffb300;
+            --md-sys-color-error: #ef4444;
+            --md-sys-color-success: #10b981;
+            --md-sys-color-warning: #f59e0b;
+            --md-sys-color-info: #3b82f6;
+            --md-sys-color-surface: #ffffff;
+            --md-sys-color-surface-variant: #f1f5f9;
+            --md-sys-color-background: #f8fafc;
+            --md-sys-color-on-surface: #0f172a;
+            --md-sys-color-on-surface-variant: #475569;
+            --md-sys-color-outline: #e2e8f0;
+            --md-ref-elevation-1: 0 1px 2px 0 rgba(0, 0, 0, 0.08);
+            --md-ref-elevation-2: 0 2px 4px -1px rgba(0, 0, 0, 0.08);
+            --md-ref-shape-small: 8px;
+            --md-ref-shape-medium: 12px;
+            --md-ref-shape-large: 16px;
+        }
+
+        * {
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: var(--md-sys-color-background);
+            padding-bottom: 80px;
+        }
+
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .app-header {
+            background: var(--md-sys-color-primary);
+            padding: 16px 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        .header-btn:active {
+            transform: scale(0.95);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--md-sys-color-error);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .app-header p {
+            font-size: 0.7rem;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+
+        /* Search */
+        .search-section {
+            padding: 12px 16px;
+            background: var(--md-sys-color-surface);
+            position: sticky;
+            top: 80px;
+            z-index: 99;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        #globalSearch {
+            width: 100%;
+            padding: 12px 45px 12px 16px;
+            border: 1px solid var(--md-sys-color-outline);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            background: var(--md-sys-color-surface-variant);
+        }
+
+        #globalSearch:focus {
+            outline: none;
+            border-color: var(--md-sys-color-primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--md-sys-color-primary);
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            box-shadow: var(--md-ref-elevation-1);
+            z-index: 1000;
+            margin-top: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .search-result-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--md-sys-color-outline);
+        }
+
+        .search-result-item:active {
+            background: var(--md-sys-color-surface-variant);
+        }
+
+        /* Stats Cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 16px;
+        }
+
+        .stat-card {
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: var(--md-ref-elevation-1);
+            cursor: pointer;
+        }
+
+        .stat-card:active {
+            transform: scale(0.98);
+        }
+
+        .stat-card i {
+            font-size: 1.5rem;
+            color: var(--md-sys-color-primary);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .title {
+            font-size: 0.7rem;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .stat-card .value {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: var(--md-sys-color-outline);
+            border-radius: 2px;
+            margin-top: 8px;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--md-sys-color-primary);
+            border-radius: 2px;
+        }
+
+        /* Sections */
+        .section {
+            display: none;
+            padding: 0 16px 80px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 16px 0;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Notification Item */
+        .notification-item {
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            border-right: 3px solid transparent;
+        }
+
+        .notification-item.unread {
+            border-right-color: var(--md-sys-color-primary);
+            background: rgba(44, 120, 115, 0.05);
+        }
+
+        .notification-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .notification-icon.reminder { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+        .notification-icon.debt { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .notification-icon.stats { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .notification-icon.system { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .notification-message {
+            font-size: 0.75rem;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-top: 4px;
+        }
+
+        .notification-time {
+            font-size: 0.65rem;
+            color: var(--md-sys-color-on-surface-variant);
+            margin-top: 6px;
+        }
+
+        /* Balance Summary */
+        .balance-summary {
+            background: linear-gradient(135deg, var(--md-sys-color-primary), var(--md-sys-color-primary-dark));
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .balance-summary .amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+
+        .balance-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+
+        .balance-stat {
+            text-align: center;
+            flex: 1;
+        }
+
+        .balance-stat .label {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        .balance-stat .value {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        /* Settings */
+        .settings-group {
+            background: var(--md-sys-color-surface);
+            border-radius: 12px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .settings-group-title {
+            padding: 14px 16px;
+            background: var(--md-sys-color-surface-variant);
+            font-weight: 700;
+            color: var(--md-sys-color-primary);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--md-sys-color-outline);
+            cursor: pointer;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-info i {
+            width: 24px;
+            color: var(--md-sys-color-primary);
+        }
+
+        .setting-label {
+            font-weight: 500;
+        }
+
+        .setting-description {
+            font-size: 0.7rem;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .toggle-switch {
+            width: 45px;
+            height: 24px;
+            background: var(--md-sys-color-outline);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-switch.active {
+            background: var(--md-sys-color-primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 3px;
+            transition: 0.2s;
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            background: var(--md-sys-color-surface);
+            margin: 16px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 550px;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--md-sys-color-outline);
+            font-size: 0.8rem;
+        }
+
+        th {
+            background: var(--md-sys-color-surface-variant);
+            font-weight: 600;
+        }
+
+        /* Charts */
+        .chart-card {
+            background: var(--md-sys-color-surface);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 16px;
+        }
+
+        .chart-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .chart-wrapper {
+            height: 180px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: var(--md-sys-color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--md-sys-color-primary-dark);
+        }
+
+        .btn-success {
+            background: var(--md-sys-color-success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #0e9f6e;
+        }
+
+        .btn-danger {
+            background: var(--md-sys-color-error);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: var(--md-sys-color-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-info {
+            background: var(--md-sys-color-info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
+        /* Action Buttons - أزرار الإجراءات */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            background: var(--md-sys-color-surface-variant);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .action-btn.edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.edit:hover {
+            background: #2563eb;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+
+        .action-btn.add-hours {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.add-hours:hover {
+            background: #0e9f6e;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.purchase {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn.purchase:hover {
+            background: #d97706;
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .action-btn.pay {
+            background: #10b981;
+            color: white;
+        }
+
+        .action-btn.pay:hover {
+            background: #0e9f6e;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .action-btn.delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .action-btn.delete:hover {
+            background: #dc2626;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: #10b981; }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .badge-info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .badge-secondary { background: rgba(100, 116, 139, 0.15); color: #64748b; }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--md-sys-color-surface);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 16px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 20px;
+            flex: 1;
+        }
+
+        .nav-item:active {
+            transform: scale(0.95);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .nav-item span {
+            font-size: 0.65rem;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .nav-item.active i,
+        .nav-item.active span {
+            color: var(--md-sys-color-primary);
+        }
+
+        /* Bottom Sheet */
+        .bottom-sheet {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--md-sys-color-surface);
+            border-radius: 24px 24px 0 0;
+            z-index: 1000;
+            max-height: 85vh;
+            overflow-y: auto;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .bottom-sheet.show {
+            display: block;
+        }
+
+        .bottom-sheet-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .bottom-sheet-overlay.show {
+            display: block;
+        }
+
+        .bottom-sheet-header {
+            padding: 16px 20px;
+            background: var(--md-sys-color-primary);
+            color: white;
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-sheet {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+
+        .bottom-sheet-body {
+            padding: 20px;
+        }
+
+        .bottom-sheet-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--md-sys-color-outline);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--md-sys-color-outline);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            background: var(--md-sys-color-surface-variant);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--md-sys-color-primary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: var(--md-sys-color-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 90;
+            font-size: 1.2rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 16px;
+            right: 16px;
+            background: var(--md-sys-color-on-surface);
+            color: white;
+            border-radius: 8px;
+            padding: 10px 16px;
+            z-index: 1100;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Print Styles */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-area, .print-area * {
+                visibility: visible;
+            }
+            .print-area {
+                position: absolute;
+                top: 0;
+                right: 0;
+                left: 0;
+                background: white;
+                padding: 20px;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .btn, .bottom-nav, .fab, .search-section, .app-header, .action-buttons {
+                display: none !important;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .action-buttons {
+                gap: 4px;
+            }
+            .action-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 0.75rem;
+            }
+            th, td {
+                padding: 8px 4px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-content">
+                <h1><i class="fas fa-water"></i> سيستار برو</h1>
+                <div class="header-actions">
+                    <button class="header-btn" id="expensesHeaderBtn">
+                        <i class="fas fa-shopping-cart"></i>
+                    </button>
+                    <button class="header-btn" id="notificationsHeaderBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                    <button class="header-btn" id="balanceHeaderBtn">
+                        <i class="fas fa-wallet"></i>
+                    </button>
+                    <button class="header-btn" id="settingsHeaderBtn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+            <p>نظام إدارة الآبار الذكي مع إشعارات متكاملة</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" id="globalSearch" placeholder="ابحث باسم المشترك أو المشتري...">
+                <i class="fas fa-search search-icon"></i>
+                <div class="search-results" id="searchResults" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div class="section active" id="dashboard">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="title">المشتركين</div>
+                    <div class="value" id="subscribersCount">0</div>
+                    <div class="progress-bar"><div class="progress" id="subscribersProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-user-tag"></i>
+                    <div class="title">المشترين</div>
+                    <div class="value" id="buyersCount">0</div>
+                    <div class="progress-bar"><div class="progress" id="buyersProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-calendar-alt"></i>
+                    <div class="title">المواعيد القادمة</div>
+                    <div class="value" id="appointmentsCount">0</div>
+                    <div class="progress-bar"><div class="progress" id="appointmentsProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-wallet"></i>
+                    <div class="title">إجمالي الرصيد</div>
+                    <div class="value" id="totalBalance">0 ريال</div>
+                    <div class="progress-bar"><div class="progress" id="balanceProgress" style="width: 0%"></div></div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <div class="title">إجمالي الديون</div>
+                    <div class="value" id="totalDebts">0 ريال</div>
+                    <div class="progress-bar"><div class="progress" id="debtsProgress" style="width: 0%"></div></div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-line"></i> إحصائيات المشتركين</h3>
+                <div class="chart-wrapper"><canvas id="subscribersChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3><i class="fas fa-chart-pie"></i> توزيع الديون</h3>
+                <div class="chart-wrapper"><canvas id="debtsChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Notifications Section -->
+        <div class="section" id="notifications">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-bell"></i> الإشعارات</h3>
+                <button class="btn btn-warning" id="markAllReadBtn"><i class="fas fa-check-double"></i> تحديد الكل</button>
+            </div>
+            <div id="notificationsList"></div>
+        </div>
+
+        <!-- Balance Section -->
+        <div class="section" id="balanceSection">
+            <div class="balance-summary">
+                <div>الرصيد الحالي</div>
+                <div class="amount" id="balanceCurrentAmount">0 ريال</div>
+                <div class="balance-stats">
+                    <div class="balance-stat">
+                        <div class="label">الإيرادات</div>
+                        <div class="value" id="balanceTotalIncome">0 ريال</div>
+                    </div>
+                    <div class="balance-stat">
+                        <div class="label">المصروفات</div>
+                        <div class="value" id="balanceTotalExpense">0 ريال</div>
+                    </div>
+                    <div class="balance-stat">
+                        <div class="label">صافي الربح</div>
+                        <div class="value" id="balanceNetProfit">0 ريال</div>
+                    </div>
+                </div>
+            </div>
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-history"></i> سجل المعاملات</h3>
+                <button class="btn btn-info" id="exportBalanceBtn"><i class="fas fa-file-excel"></i> تصدير</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>التاريخ</th><th>البيان</th><th>النوع</th><th>المبلغ</th></tr></thead>
+                    <tbody id="balanceTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div class="section" id="settings">
+            <div class="settings-group">
+                <div class="settings-group-title"><i class="fas fa-bell"></i> إعدادات الإشعارات</div>
+                <div class="setting-item">
+                    <div class="setting-info"><i class="fas fa-calendar-alt"></i><div><div class="setting-label">تذكير المواعيد</div><div class="setting-description">إشعار قبل الموعد بيوم</div></div></div>
+                    <div class="toggle-switch" id="reminderToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info"><i class="fas fa-file-invoice-dollar"></i><div><div class="setting-label">تنبيه الديون</div><div class="setting-description">إشعار قبل استحقاق الدين</div></div></div>
+                    <div class="toggle-switch" id="debtToggle"></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info"><i class="fas fa-chart-line"></i><div><div class="setting-label">التقارير الأسبوعية</div><div class="setting-description">إحصائيات كل أسبوع</div></div></div>
+                    <div class="toggle-switch" id="weeklyToggle"></div>
+                </div>
+            </div>
+            <div class="settings-group">
+                <div class="settings-group-title"><i class="fas fa-database"></i> إدارة البيانات</div>
+                <div class="setting-item" id="backupDataBtn"><div class="setting-info"><i class="fas fa-download"></i><div><div class="setting-label">نسخ احتياطي</div><div class="setting-description">تصدير جميع البيانات</div></div></div><i class="fas fa-chevron-left"></i></div>
+                <div class="setting-item" id="restoreDataBtn"><div class="setting-info"><i class="fas fa-upload"></i><div><div class="setting-label">استعادة بيانات</div><div class="setting-description">استيراد من نسخة احتياطية</div></div></div><i class="fas fa-chevron-left"></i></div>
+                <div class="setting-item" id="clearDataBtn"><div class="setting-info"><i class="fas fa-trash-alt"></i><div><div class="setting-label">مسح البيانات</div><div class="setting-description">حذف جميع البيانات</div></div></div><i class="fas fa-chevron-left"></i></div>
+            </div>
+        </div>
+
+        <!-- Subscribers Section -->
+        <div class="section" id="subscribers">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-users"></i> المشتركين</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-info" id="printSubscribersBtn"><i class="fas fa-print"></i> طباعة</button>
+                    <button class="btn btn-primary" id="addSubscriberBtn"><i class="fas fa-plus"></i> إضافة</button>
+                </div>
+            </div>
+            <div class="table-container" id="subscribersPrintArea">
+                <table>
+                    <thead><tr><th>الاسم</th><th>س/أسبوع</th><th>المأخوذ</th><th>المتبقي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="subscribersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Buyers Section -->
+        <div class="section" id="buyers">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-user-tag"></i> المشترين</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-info" id="printBuyersBtn"><i class="fas fa-print"></i> طباعة</button>
+                    <button class="btn btn-primary" id="addBuyerBtn"><i class="fas fa-plus"></i> إضافة</button>
+                </div>
+            </div>
+            <div class="table-container" id="buyersPrintArea">
+                <table>
+                    <thead><tr><th>الاسم</th><th>الساعات</th><th>تاريخ الاستلام</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="buyersTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Appointments Section -->
+        <div class="section" id="appointments">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-calendar-alt"></i> المواعيد</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-info" id="printAppointmentsBtn"><i class="fas fa-print"></i> طباعة</button>
+                    <button class="btn btn-primary" id="addAppointmentBtn"><i class="fas fa-plus"></i> إضافة</button>
+                </div>
+            </div>
+            <div class="table-container" id="appointmentsPrintArea">
+                <table>
+                    <thead><tr><th>العميل</th><th>الاسم</th><th>التاريخ</th><th>الوقت</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="appointmentsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Debts Section -->
+        <div class="section" id="debts">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-file-invoice-dollar"></i> الديون</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-info" id="printDebtsBtn"><i class="fas fa-print"></i> طباعة</button>
+                    <span class="badge badge-danger" id="debtsTotal">0 ريال</span>
+                </div>
+            </div>
+            <div class="table-container" id="debtsPrintArea">
+                <table>
+                    <thead><tr><th>الاسم</th><th>النوع</th><th>المبلغ</th><th>تاريخ الاستحقاق</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+                    <tbody id="debtsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Expenses Section -->
+        <div class="section" id="expenses">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> المصروفات والمشتروات</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-info" id="printExpensesBtn"><i class="fas fa-print"></i> طباعة</button>
+                    <button class="btn btn-primary" id="addExpenseBtn"><i class="fas fa-plus"></i> إضافة</button>
+                </div>
+            </div>
+            <div class="stats-container" style="margin-bottom: 16px;">
+                <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="title">إجمالي المصروفات</div>
+                    <div class="value" id="totalExpensesAmount">0 ريال</div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-invoice"></i>
+                    <div class="title">عدد العمليات</div>
+                    <div class="value" id="expensesCount">0</div>
+                </div>
+            </div>
+            <div class="table-container" id="expensesPrintArea">
+                <table>
+                    <thead><tr><th>رقم السند</th><th>النوع</th><th>الصنف/المنتج</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th>المستلم</th><th>التفاصيل</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+                    <tbody id="expensesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Purchases Section (kept for compatibility) -->
+        <div class="section" id="purchases">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-shopping-cart"></i> المشتروات</h3>
+                <button class="btn btn-primary" id="addPurchaseBtn"><i class="fas fa-plus"></i> إضافة</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>الصنف</th><th>النوع</th><th>التاريخ</th><th>المبلغ</th><th></th></tr></thead>
+                    <tbody id="purchasesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Section -->
+        <div class="section" id="reports">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-chart-line"></i> التقارير</h3>
+                <button class="btn btn-info" id="exportPdfReportBtn"><i class="fas fa-file-pdf"></i> PDF</button>
+            </div>
+            <div class="stats-container">
+                <div class="stat-card"><i class="fas fa-chart-line"></i><div class="title">إجمالي الإيرادات</div><div class="value" id="reportTotalRevenue">0 ريال</div></div>
+                <div class="stat-card"><i class="fas fa-chart-line"></i><div class="title">متوسط الإيرادات</div><div class="value" id="reportAvgRevenue">0 ريال</div></div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-section="dashboard"><i class="fas fa-home"></i><span>الرئيسية</span></button>
+            <button class="nav-item" data-section="subscribers"><i class="fas fa-users"></i><span>المشتركين</span></button>
+            <button class="nav-item" data-section="buyers"><i class="fas fa-user-tag"></i><span>المشترين</span></button>
+            <button class="nav-item" data-section="appointments"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></button>
+            <button class="nav-item" data-section="debts"><i class="fas fa-file-invoice-dollar"></i><span>الديون</span></button>
+            <button class="nav-item" data-section="reports"><i class="fas fa-chart-line"></i><span>التقارير</span></button>
+        </div>
+
+        <!-- FAB -->
+        <button class="fab" id="fabBtn"><i class="fas fa-plus"></i></button>
+    </div>
+
+    <!-- Bottom Sheets -->
+    <div class="bottom-sheet-overlay" id="sheetOverlay"></div>
+
+    <div class="bottom-sheet" id="subscriberSheet">
+        <div class="bottom-sheet-header"><h3>إضافة مشترك</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="subscriberId">
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="subscriberName" class="form-control" placeholder="أدخل اسم المشترك"></div>
+            <div class="form-group"><label>الساعات/الأسبوع</label><input type="number" id="hoursPerWeek" class="form-control" value="10"></div>
+            <div class="form-group"><label>الساعات المأخوذة</label><input type="number" id="takenHours" class="form-control" value="0"></div>
+            <div class="form-group"><label>المبلغ المدفوع</label><input type="number" id="paidAmount" class="form-control" value="0"></div>
+            <div class="form-group"><label>المبلغ المتبقي</label><input type="number" id="remainingAmount" class="form-control" value="0"></div>
+            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="subscriberPhone" class="form-control" placeholder="رقم الهاتف"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-primary" id="saveSubscriber">حفظ</button></div>
+    </div>
+
+    <div class="bottom-sheet" id="buyerSheet">
+        <div class="bottom-sheet-header"><h3>إضافة مشتري</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="buyerId">
+            <div class="form-group"><label>الاسم الكامل</label><input type="text" id="buyerName" class="form-control" placeholder="أدخل اسم المشتري"></div>
+            <div class="form-group"><label>عدد الساعات</label><input type="number" id="hoursCount" class="form-control" value="5"></div>
+            <div class="form-group"><label>تاريخ الاستلام</label><input type="datetime-local" id="deliveryDate" class="form-control"></div>
+            <div class="form-group"><label>المبلغ المدفوع</label><input type="number" id="buyerPaid" class="form-control" value="0"></div>
+            <div class="form-group"><label>المبلغ المتبقي</label><input type="number" id="buyerRemaining" class="form-control" value="0"></div>
+            <div class="form-group"><label>رقم الهاتف</label><input type="tel" id="buyerPhone" class="form-control" placeholder="رقم الهاتف"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-primary" id="saveBuyer">حفظ</button></div>
+    </div>
+
+    <!-- New Purchase Action Sheet for Buyers -->
+    <div class="bottom-sheet" id="buyerPurchaseSheet">
+        <div class="bottom-sheet-header"><h3>إتمام شراء - <span id="buyerPurchaseName"></span></h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="buyerPurchaseId">
+            <div class="form-group"><label>عدد الساعات المطلوبة</label><input type="number" id="purchaseHours" class="form-control" value="1" min="1"></div>
+            <div class="form-group"><label>قيمة الساعة (ريال)</label><input type="number" id="hourPrice" class="form-control" value="50" min="1"></div>
+            <div class="form-group"><label>الإجمالي</label><input type="text" id="totalAmount" class="form-control" readonly style="background: #e8f5e9; font-weight: bold;"></div>
+            <div class="form-group"><label>المبلغ المدفوع</label><input type="number" id="paidAmountPurchase" class="form-control" value="0" min="0"></div>
+            <div class="form-group"><label>المبلغ المتبقي</label><input type="text" id="remainingAmountPurchase" class="form-control" readonly style="background: #fff3e0;"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-success" id="confirmPurchaseBtn">تأكيد الشراء</button></div>
+    </div>
+
+    <div class="bottom-sheet" id="appointmentSheet">
+        <div class="bottom-sheet-header"><h3>إضافة موعد</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="appointmentId">
+            <div class="form-group"><label>نوع العميل</label><select id="clientType" class="form-control"><option value="subscriber">مشترك</option><option value="buyer">مشتري</option></select></div>
+            <div class="form-group"><label>اسم العميل</label><select id="clientName" class="form-control"></select></div>
+            <div class="form-group"><label>التاريخ</label><input type="date" id="appointmentDate" class="form-control"></div>
+            <div class="form-group"><label>من الساعة</label><input type="time" id="startTime" class="form-control"></div>
+            <div class="form-group"><label>إلى الساعة</label><input type="time" id="endTime" class="form-control"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-primary" id="saveAppointment">حفظ</button></div>
+    </div>
+
+    <!-- New Expense Sheet -->
+    <div class="bottom-sheet" id="expenseSheet">
+        <div class="bottom-sheet-header"><h3>إضافة مصروف</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="expenseId">
+            <div class="form-group"><label>رقم السند</label><input type="text" id="voucherNumber" class="form-control" readonly style="background: #e8f5e9; font-weight: bold;"></div>
+            <div class="form-group"><label>نوع المصروف</label><select id="expenseType" class="form-control">
+                <option value="مواد">مواد</option>
+                <option value="صيانة">صيانة</option>
+                <option value="إيجار">إيجار</option>
+                <option value="رواتب">رواتب</option>
+                <option value="كهرباء">كهرباء</option>
+                <option value="ماء">ماء</option>
+                <option value="أخرى">أخرى</option>
+            </select></div>
+            <div class="form-group"><label>اسم الصنف/المنتج</label><input type="text" id="expenseItem" class="form-control" placeholder="مثال: مضخة مياه"></div>
+            <div class="form-group"><label>السعر (ريال)</label><input type="number" id="expensePrice" class="form-control" value="0" min="0"></div>
+            <div class="form-group"><label>الكمية</label><input type="number" id="expenseQuantity" class="form-control" value="1" min="1"></div>
+            <div class="form-group"><label>الإجمالي</label><input type="text" id="expenseTotal" class="form-control" readonly style="background: #e8f5e9; font-weight: bold;"></div>
+            <div class="form-group"><label>اسم المستلم</label><input type="text" id="receiverName" class="form-control" placeholder="اسم الشخص أو الجهة"></div>
+            <div class="form-group"><label>التفاصيل</label><textarea id="expenseDetails" class="form-control" rows="3" placeholder="تفاصيل إضافية"></textarea></div>
+            <div class="form-group"><label>تاريخ المصروف</label><input type="date" id="expenseDate" class="form-control"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-primary" id="saveExpense">حفظ</button></div>
+    </div>
+
+    <div class="bottom-sheet" id="purchaseSheet">
+        <div class="bottom-sheet-header"><h3>إضافة مشتروات</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="purchaseId">
+            <div class="form-group"><label>اسم الصنف</label><input type="text" id="itemName" class="form-control"></div>
+            <div class="form-group"><label>النوع</label><select id="itemType" class="form-control"><option>مواد</option><option>صيانة</option></select></div>
+            <div class="form-group"><label>تاريخ الشراء</label><input type="date" id="purchaseDate" class="form-control"></div>
+            <div class="form-group"><label>المبلغ</label><input type="number" id="purchaseAmount" class="form-control" value="0"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-primary" id="savePurchase">حفظ</button></div>
+    </div>
+
+    <div class="bottom-sheet" id="paymentSheet">
+        <div class="bottom-sheet-header"><h3>تسديد دين</h3><button class="close-sheet">&times;</button></div>
+        <div class="bottom-sheet-body">
+            <input type="hidden" id="debtId">
+            <div class="form-group"><label>اسم المدين</label><input type="text" id="debtorName" class="form-control" readonly></div>
+            <div class="form-group"><label>المبلغ المستحق</label><input type="text" id="debtAmount" class="form-control" readonly></div>
+            <div class="form-group"><label>المبلغ المدفوع</label><input type="number" id="paymentAmount" class="form-control"></div>
+            <div class="form-group"><label>تاريخ التسديد</label><input type="date" id="paymentDate" class="form-control"></div>
+        </div>
+        <div class="bottom-sheet-footer"><button class="btn btn-warning close-sheet">إلغاء</button><button class="btn btn-success" id="confirmPayment">تأكيد التسديد</button></div>
+    </div>
+
+    <script>
+// ==========================================
+// سيستار برو - نظام إدارة الآبار المتكامل
+// الإصدار 1.0
+// ==========================================
+
+// ------------------- البيانات الأساسية -------------------
+let appData = {
+    subscribers: [],
+    buyers: [],
+    appointments: [],
+    expenses: [],
+    purchases: [],
+    notifications: [],
+    settings: {
+        reminderToggle: true,
+        debtToggle: true,
+        weeklyToggle: true,
+        lastWeeklyReport: null
+    },
+    nextIds: {
+        subscriber: 1,
+        buyer: 1,
+        appointment: 1,
+        expense: 1,
+        purchase: 1,
+        notification: 1
+    }
+};
+
+// متغيرات عامة
+let currentSection = 'dashboard';
+let charts = {};
+
+// ------------------- دوال مساعدة -------------------
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.background = type === 'error' ? '#ef4444' : (type === 'warning' ? '#f59e0b' : '#10b981');
+    toast.innerHTML = `<i class="fas ${type === 'error' ? 'fa-exclamation-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-check-circle')}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function formatDate(date) {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('ar-EG');
+}
+
+function formatDateTime(dateTime) {
+    if (!dateTime) return '';
+    return new Date(dateTime).toLocaleString('ar-EG');
+}
+
+function formatCurrency(amount) {
+    return Number(amount).toLocaleString() + ' ريال';
+}
+
+// ------------------- دوال الطباعة -------------------
+function printSection(sectionId, title) {
+    const section = document.getElementById(sectionId);
+    if (!section) return;
+    
+    const printWindow = window.open('', '_blank');
+    const printArea = document.getElementById(sectionId + 'PrintArea') || section;
+    let contentHTML = '';
+    
+    if (printArea.tagName === 'DIV' && printArea.querySelector('table')) {
+        contentHTML = printArea.querySelector('table').outerHTML;
+    } else if (printArea.querySelector('table')) {
+        contentHTML = printArea.querySelector('table').outerHTML;
+    } else {
+        contentHTML = printArea.innerHTML;
+    }
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="UTF-8">
+            <title>${title} - سيستار برو</title>
+            <style>
+                * {
+                    font-family: 'Tajawal', 'Arial', sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                body {
+                    padding: 20px;
+                    background: white;
+                }
+                .print-header {
+                    text-align: center;
+                    margin-bottom: 20px;
+                    padding-bottom: 15px;
+                    border-bottom: 2px solid #2c7873;
+                }
+                .print-header h1 {
+                    color: #2c7873;
+                    font-size: 24px;
+                    margin-bottom: 5px;
+                }
+                .print-header p {
+                    color: #666;
+                    font-size: 12px;
+                }
+                .print-title {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin: 15px 0;
+                    color: #2c7873;
+                    text-align: center;
+                }
+                .print-date {
+                    text-align: left;
+                    font-size: 11px;
+                    color: #666;
+                    margin-bottom: 15px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-top: 10px;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: right;
+                    font-size: 12px;
+                }
+                th {
+                    background: #f5f5f5;
+                    font-weight: bold;
+                }
+                .footer {
+                    margin-top: 30px;
+                    text-align: center;
+                    font-size: 10px;
+                    color: #999;
+                    border-top: 1px solid #eee;
+                    padding-top: 15px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                <h1><i class="fas fa-water"></i> سيستار برو</h1>
+                <p>نظام إدارة الآبار الذكي</p>
+            </div>
+            <div class="print-title">${title}</div>
+            <div class="print-date">تاريخ الطباعة: ${new Date().toLocaleString('ar-EG')}</div>
+            ${contentHTML}
+            <div class="footer">
+                <p>تم إنشاؤه بواسطة سيستار برو - نظام إدارة الآبار</p>
+            </div>
+            <script>
+                window.onload = function() {
+                    window.print();
+                    setTimeout(function() { window.close(); }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    
+    printWindow.document.close();
+    showToast(`جاري طباعة ${title}...`, 'info');
+}
+
+// تحديث جميع الإحصائيات في لوحة التحكم
+function updateDashboardStats() {
+    const subscribersCount = appData.subscribers.length;
+    const buyersCount = appData.buyers.length;
+    
+    const upcomingAppointments = appData.appointments.filter(a => new Date(a.date + 'T' + a.endTime) > new Date()).length;
+    
+    const totalIncome = calculateTotalIncome();
+    const totalExpense = calculateTotalExpense();
+    const totalBalance = totalIncome - totalExpense;
+    
+    let totalDebts = 0;
+    appData.subscribers.forEach(s => totalDebts += (s.remainingAmount || 0));
+    appData.buyers.forEach(b => totalDebts += (b.remainingAmount || 0));
+    
+    document.getElementById('subscribersCount').innerText = subscribersCount;
+    document.getElementById('buyersCount').innerText = buyersCount;
+    document.getElementById('appointmentsCount').innerText = upcomingAppointments;
+    document.getElementById('totalBalance').innerHTML = formatCurrency(totalBalance);
+    document.getElementById('totalDebts').innerHTML = formatCurrency(totalDebts);
+    
+    const maxSubscribers = 50;
+    document.getElementById('subscribersProgress').style.width = `${Math.min((subscribersCount / maxSubscribers) * 100, 100)}%`;
+    document.getElementById('buyersProgress').style.width = `${Math.min((buyersCount / maxSubscribers) * 100, 100)}%`;
+    document.getElementById('appointmentsProgress').style.width = `${Math.min((upcomingAppointments / 20) * 100, 100)}%`;
+    document.getElementById('debtsProgress').style.width = `${Math.min((totalDebts / 100000) * 100, 100)}%`;
+    
+    updateSubscribersChart();
+    updateDebtsChart();
+}
+
+function calculateTotalIncome() {
+    let total = 0;
+    appData.subscribers.forEach(s => total += (s.paidAmount || 0));
+    appData.buyers.forEach(b => total += (b.paidAmount || 0));
+    return total;
+}
+
+function calculateTotalExpense() {
+    let total = 0;
+    appData.expenses.forEach(e => total += (e.total || 0));
+    appData.purchases.forEach(p => total += (p.amount || 0));
+    return total;
+}
+
+function updateSubscribersChart() {
+    const ctx = document.getElementById('subscribersChart').getContext('2d');
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const data = new Array(12).fill(0);
+    
+    appData.subscribers.forEach(s => {
+        if (s.createdAt) {
+            const month = new Date(s.createdAt).getMonth();
+            data[month]++;
+        }
+    });
+    
+    if (charts.subscribers) charts.subscribers.destroy();
+    charts.subscribers = new Chart(ctx, {
+        type: 'line',
+        data: { labels: months, datasets: [{ label: 'عدد المشتركين الجدد', data: data, borderColor: '#2c7873', tension: 0.3, fill: true, backgroundColor: 'rgba(44, 120, 115, 0.1)' }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+function updateDebtsChart() {
+    const ctx = document.getElementById('debtsChart').getContext('2d');
+    let subscriberDebts = 0, buyerDebts = 0;
+    appData.subscribers.forEach(s => subscriberDebts += (s.remainingAmount || 0));
+    appData.buyers.forEach(b => buyerDebts += (b.remainingAmount || 0));
+    
+    if (charts.debts) charts.debts.destroy();
+    charts.debts = new Chart(ctx, {
+        type: 'pie',
+        data: { labels: ['ديون المشتركين', 'ديون المشترين'], datasets: [{ data: [subscriberDebts, buyerDebts], backgroundColor: ['#2c7873', '#ffb300'] }] },
+        options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } }
+    });
+}
+
+// ------------------- إدارة المشتركين -------------------
+function renderSubscribers() {
+    const tbody = document.getElementById('subscribersTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    appData.subscribers.forEach(sub => {
+        const taken = sub.takenHours || 0;
+        const totalHours = sub.hoursPerWeek || 10;
+        const remainingHours = totalHours - taken;
+        const remainingAmount = sub.remainingAmount || 0;
+        const status = remainingHours <= 0 ? 'مكتمل' : (remainingHours < 3 ? 'متبقي قليل' : 'نشط');
+        const statusClass = remainingHours <= 0 ? 'badge-success' : (remainingHours < 3 ? 'badge-warning' : 'badge-info');
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = `<strong>${sub.name}</strong><br><small>${sub.phone || ''}</small>`;
+        row.insertCell(1).innerHTML = `${totalHours} ساعة`;
+        row.insertCell(2).innerHTML = `${taken} ساعة`;
+        row.insertCell(3).innerHTML = `${remainingHours} ساعة`;
+        row.insertCell(4).innerHTML = formatCurrency(sub.paidAmount || 0);
+        row.insertCell(5).innerHTML = formatCurrency(remainingAmount);
+        row.insertCell(6).innerHTML = `<span class="badge ${statusClass}">${status}</span>`;
+        row.insertCell(7).innerHTML = `
+            <div class="action-buttons">
+                <button class="action-btn edit" data-id="${sub.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button class="action-btn add-hours" data-id="${sub.id}" title="إضافة ساعات"><i class="fas fa-clock"></i></button>
+                <button class="action-btn delete" data-id="${sub.id}" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', () => editSubscriber(parseInt(btn.dataset.id)));
+    });
+    document.querySelectorAll('.action-btn.add-hours').forEach(btn => {
+        btn.addEventListener('click', () => addHoursToSubscriber(parseInt(btn.dataset.id)));
+    });
+    document.querySelectorAll('.action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteSubscriber(parseInt(btn.dataset.id)));
+    });
+}
+
+function editSubscriber(id) {
+    const sub = appData.subscribers.find(s => s.id === id);
+    if (!sub) return;
+    
+    document.getElementById('subscriberId').value = sub.id;
+    document.getElementById('subscriberName').value = sub.name;
+    document.getElementById('hoursPerWeek').value = sub.hoursPerWeek;
+    document.getElementById('takenHours').value = sub.takenHours || 0;
+    document.getElementById('paidAmount').value = sub.paidAmount || 0;
+    document.getElementById('remainingAmount').value = sub.remainingAmount || 0;
+    document.getElementById('subscriberPhone').value = sub.phone || '';
+    
+    document.getElementById('subscriberSheet').classList.add('show');
+    document.getElementById('sheetOverlay').classList.add('show');
+}
+
+function addHoursToSubscriber(id) {
+    const sub = appData.subscribers.find(s => s.id === id);
+    if (!sub) return;
+    
+    Swal.fire({
+        title: 'إضافة ساعات للمشترك',
+        html: `
+            <input type="number" id="hoursToAdd" class="swal2-input" placeholder="عدد الساعات" min="1" value="1">
+            <input type="number" id="hoursPrice" class="swal2-input" placeholder="سعر الساعة (ريال)" value="50" min="1">
+        `,
+        confirmButtonText: 'إضافة',
+        showCancelButton: true,
+        preConfirm: () => {
+            const hours = parseInt(document.getElementById('hoursToAdd').value);
+            const price = parseInt(document.getElementById('hoursPrice').value);
+            if (isNaN(hours) || hours <= 0) Swal.showValidationMessage('الرجاء إدخال عدد ساعات صحيح');
+            if (isNaN(price) || price <= 0) Swal.showValidationMessage('الرجاء إدخال سعر صحيح');
+            return { hours, price };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const { hours, price } = result.value;
+            const totalAmount = hours * price;
+            
+            Swal.fire({
+                title: 'تسديد المبلغ',
+                html: `<input type="number" id="paidNow" class="swal2-input" placeholder="المبلغ المدفوع الآن" value="${totalAmount}" min="0" max="${totalAmount}">`,
+                confirmButtonText: 'تأكيد',
+                preConfirm: () => {
+                    const paidNow = parseInt(document.getElementById('paidNow').value);
+                    return { paidNow };
+                }
+            }).then((paymentResult) => {
+                if (paymentResult.isConfirmed) {
+                    const paidNow = paymentResult.value.paidNow;
+                    const remainingAmount = totalAmount - paidNow;
+                    
+                    sub.takenHours = (sub.takenHours || 0) + hours;
+                    sub.paidAmount = (sub.paidAmount || 0) + paidNow;
+                    sub.remainingAmount = (sub.remainingAmount || 0) + remainingAmount;
+                    
+                    saveData();
+                    renderSubscribers();
+                    updateDashboardStats();
+                    renderBalanceSection();
+                    
+                    addNotification('إضافة ساعات', `تمت إضافة ${hours} ساعات للمشترك ${sub.name}`, 'stats');
+                    showToast(`تمت إضافة ${hours} ساعات بنجاح`);
+                }
+            });
+        }
+    });
+}
+
+function deleteSubscriber(id) {
+    Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف هذا المشترك؟',
+        icon: 'warning',
+        confirmButtonText: 'حذف',
+        cancelButtonText: 'إلغاء',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            appData.subscribers = appData.subscribers.filter(s => s.id !== id);
+            saveData();
+            renderSubscribers();
+            updateDashboardStats();
+            renderBalanceSection();
+            showToast('تم حذف المشترك بنجاح');
+        }
+    });
+}
+
+function saveSubscriber() {
+    const id = parseInt(document.getElementById('subscriberId').value);
+    const name = document.getElementById('subscriberName').value;
+    if (!name) {
+        showToast('الرجاء إدخال اسم المشترك', 'error');
+        return;
+    }
+    
+    const subscriber = {
+        id: id || appData.nextIds.subscriber++,
+        name: name,
+        hoursPerWeek: parseInt(document.getElementById('hoursPerWeek').value) || 10,
+        takenHours: parseInt(document.getElementById('takenHours').value) || 0,
+        paidAmount: parseInt(document.getElementById('paidAmount').value) || 0,
+        remainingAmount: parseInt(document.getElementById('remainingAmount').value) || 0,
+        phone: document.getElementById('subscriberPhone').value,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (id) {
+        const index = appData.subscribers.findIndex(s => s.id === id);
+        if (index !== -1) appData.subscribers[index] = subscriber;
+    } else {
+        appData.subscribers.push(subscriber);
+    }
+    
+    saveData();
+    closeAllSheets();
+    renderSubscribers();
+    updateDashboardStats();
+    renderBalanceSection();
+    showToast(id ? 'تم تحديث المشترك بنجاح' : 'تمت إضافة المشترك بنجاح');
+}
+
+// ------------------- إدارة المشترين -------------------
+function renderBuyers() {
+    const tbody = document.getElementById('buyersTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    appData.buyers.forEach(buyer => {
+        const status = (buyer.remainingAmount || 0) <= 0 ? 'مدفوع' : 'عليه دين';
+        const statusClass = (buyer.remainingAmount || 0) <= 0 ? 'badge-success' : 'badge-danger';
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = `<strong>${buyer.name}</strong><br><small>${buyer.phone || ''}</small>`;
+        row.insertCell(1).innerHTML = `${buyer.hours || 0} ساعة`;
+        row.insertCell(2).innerHTML = formatDateTime(buyer.deliveryDate);
+        row.insertCell(3).innerHTML = formatCurrency(buyer.paidAmount || 0);
+        row.insertCell(4).innerHTML = formatCurrency(buyer.remainingAmount || 0);
+        row.insertCell(5).innerHTML = `<span class="badge ${statusClass}">${status}</span>`;
+        row.insertCell(6).innerHTML = `
+            <div class="action-buttons">
+                <button class="action-btn edit" data-id="${buyer.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button class="action-btn purchase" data-id="${buyer.id}" title="شراء ساعات"><i class="fas fa-shopping-cart"></i></button>
+                <button class="action-btn delete" data-id="${buyer.id}" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', () => editBuyer(parseInt(btn.dataset.id)));
+    });
+    document.querySelectorAll('.action-btn.purchase').forEach(btn => {
+        btn.addEventListener('click', () => openPurchaseSheet(parseInt(btn.dataset.id)));
+    });
+    document.querySelectorAll('.action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteBuyer(parseInt(btn.dataset.id)));
+    });
+}
+
+function editBuyer(id) {
+    const buyer = appData.buyers.find(b => b.id === id);
+    if (!buyer) return;
+    
+    document.getElementById('buyerId').value = buyer.id;
+    document.getElementById('buyerName').value = buyer.name;
+    document.getElementById('hoursCount').value = buyer.hours || 0;
+    document.getElementById('deliveryDate').value = buyer.deliveryDate ? buyer.deliveryDate.slice(0, 16) : '';
+    document.getElementById('buyerPaid').value = buyer.paidAmount || 0;
+    document.getElementById('buyerRemaining').value = buyer.remainingAmount || 0;
+    document.getElementById('buyerPhone').value = buyer.phone || '';
+    
+    document.getElementById('buyerSheet').classList.add('show');
+    document.getElementById('sheetOverlay').classList.add('show');
+}
+
+function openPurchaseSheet(id) {
+    const buyer = appData.buyers.find(b => b.id === id);
+    if (!buyer) return;
+    
+    document.getElementById('buyerPurchaseId').value = buyer.id;
+    document.getElementById('buyerPurchaseName').innerText = buyer.name;
+    document.getElementById('purchaseHours').value = 1;
+    document.getElementById('hourPrice').value = 50;
+    document.getElementById('paidAmountPurchase').value = 0;
+    
+    calculatePurchaseTotal();
+    
+    document.getElementById('buyerPurchaseSheet').classList.add('show');
+    document.getElementById('sheetOverlay').classList.add('show');
+}
+
+function calculatePurchaseTotal() {
+    const hours = parseInt(document.getElementById('purchaseHours').value) || 0;
+    const price = parseInt(document.getElementById('hourPrice').value) || 0;
+    const total = hours * price;
+    document.getElementById('totalAmount').value = formatCurrency(total);
+    
+    const paid = parseInt(document.getElementById('paidAmountPurchase').value) || 0;
+    const remaining = total - paid;
+    document.getElementById('remainingAmountPurchase').value = formatCurrency(remaining);
+}
+
+function confirmPurchase() {
+    const buyerId = parseInt(document.getElementById('buyerPurchaseId').value);
+    const buyer = appData.buyers.find(b => b.id === buyerId);
+    if (!buyer) return;
+    
+    const hours = parseInt(document.getElementById('purchaseHours').value) || 0;
+    const price = parseInt(document.getElementById('hourPrice').value) || 0;
+    const total = hours * price;
+    const paid = parseInt(document.getElementById('paidAmountPurchase').value) || 0;
+    const remaining = total - paid;
+    
+    buyer.hours = (buyer.hours || 0) + hours;
+    buyer.paidAmount = (buyer.paidAmount || 0) + paid;
+    buyer.remainingAmount = (buyer.remainingAmount || 0) + remaining;
+    
+    addBalanceTransaction(`شراء ساعات لـ ${buyer.name}`, 'income', paid);
+    
+    saveData();
+    closeAllSheets();
+    renderBuyers();
+    updateDashboardStats();
+    renderBalanceSection();
+    addNotification('شراء ساعات', `تم شراء ${hours} ساعات للمشتري ${buyer.name}`, 'stats');
+    showToast('تمت عملية الشراء بنجاح');
+}
+
+function deleteBuyer(id) {
+    Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف هذا المشتري؟',
+        icon: 'warning',
+        confirmButtonText: 'حذف',
+        cancelButtonText: 'إلغاء',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            appData.buyers = appData.buyers.filter(b => b.id !== id);
+            saveData();
+            renderBuyers();
+            updateDashboardStats();
+            renderBalanceSection();
+            showToast('تم حذف المشتري بنجاح');
+        }
+    });
+}
+
+function saveBuyer() {
+    const id = parseInt(document.getElementById('buyerId').value);
+    const name = document.getElementById('buyerName').value;
+    if (!name) {
+        showToast('الرجاء إدخال اسم المشتري', 'error');
+        return;
+    }
+    
+    const buyer = {
+        id: id || appData.nextIds.buyer++,
+        name: name,
+        hours: parseInt(document.getElementById('hoursCount').value) || 0,
+        deliveryDate: document.getElementById('deliveryDate').value,
+        paidAmount: parseInt(document.getElementById('buyerPaid').value) || 0,
+        remainingAmount: parseInt(document.getElementById('buyerRemaining').value) || 0,
+        phone: document.getElementById('buyerPhone').value,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (id) {
+        const index = appData.buyers.findIndex(b => b.id === id);
+        if (index !== -1) appData.buyers[index] = buyer;
+    } else {
+        appData.buyers.push(buyer);
+    }
+    
+    saveData();
+    closeAllSheets();
+    renderBuyers();
+    updateDashboardStats();
+    renderBalanceSection();
+    showToast(id ? 'تم تحديث المشتري بنجاح' : 'تمت إضافة المشتري بنجاح');
+}
+
+// ------------------- إدارة المواعيد -------------------
+function renderAppointments() {
+    const tbody = document.getElementById('appointmentsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    appData.appointments.forEach(apt => {
+        const client = apt.clientType === 'subscriber' 
+            ? appData.subscribers.find(s => s.id === apt.clientId)
+            : appData.buyers.find(b => b.id === apt.clientId);
+        const clientName = client ? client.name : 'غير معروف';
+        const status = new Date(apt.date + 'T' + apt.endTime) < new Date() ? 'منتهي' : 'قادم';
+        const statusClass = status === 'قادم' ? 'badge-info' : 'badge-secondary';
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = apt.clientType === 'subscriber' ? 'مشترك' : 'مشتري';
+        row.insertCell(1).innerHTML = clientName;
+        row.insertCell(2).innerHTML = formatDate(apt.date);
+        row.insertCell(3).innerHTML = `${apt.startTime} - ${apt.endTime}`;
+        row.insertCell(4).innerHTML = `<span class="badge ${statusClass}">${status}</span>`;
+        row.insertCell(5).innerHTML = `
+            <div class="action-buttons">
+                <button class="action-btn edit" data-id="${apt.id}" title="تعديل"><i class="fas fa-edit"></i></button>
+                <button class="action-btn delete" data-id="${apt.id}" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.action-btn.edit').forEach(btn => {
+        btn.addEventListener('click', () => editAppointment(parseInt(btn.dataset.id)));
+    });
+    document.querySelectorAll('.action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteAppointment(parseInt(btn.dataset.id)));
+    });
+}
+
+function editAppointment(id) {
+    const apt = appData.appointments.find(a => a.id === id);
+    if (!apt) return;
+    
+    document.getElementById('appointmentId').value = apt.id;
+    document.getElementById('clientType').value = apt.clientType;
+    updateClientSelect(apt.clientType, apt.clientId);
+    document.getElementById('appointmentDate').value = apt.date;
+    document.getElementById('startTime').value = apt.startTime;
+    document.getElementById('endTime').value = apt.endTime;
+    
+    document.getElementById('appointmentSheet').classList.add('show');
+    document.getElementById('sheetOverlay').classList.add('show');
+}
+
+function deleteAppointment(id) {
+    Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف هذا الموعد؟',
+        icon: 'warning',
+        confirmButtonText: 'حذف',
+        cancelButtonText: 'إلغاء',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            appData.appointments = appData.appointments.filter(a => a.id !== id);
+            saveData();
+            renderAppointments();
+            updateDashboardStats();
+            showToast('تم حذف الموعد بنجاح');
+        }
+    });
+}
+
+function updateClientSelect(clientType, selectedId = null) {
+    const select = document.getElementById('clientName');
+    select.innerHTML = '';
+    const clients = clientType === 'subscriber' ? appData.subscribers : appData.buyers;
+    clients.forEach(client => {
+        const option = document.createElement('option');
+        option.value = client.id;
+        option.textContent = client.name;
+        if (selectedId === client.id) option.selected = true;
+        select.appendChild(option);
+    });
+}
+
+function saveAppointment() {
+    const id = parseInt(document.getElementById('appointmentId').value);
+    const clientType = document.getElementById('clientType').value;
+    const clientId = parseInt(document.getElementById('clientName').value);
+    const date = document.getElementById('appointmentDate').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+    
+    if (!date || !startTime || !endTime) {
+        showToast('الرجاء إدخال جميع بيانات الموعد', 'error');
+        return;
+    }
+    
+    const appointment = {
+        id: id || appData.nextIds.appointment++,
+        clientType: clientType,
+        clientId: clientId,
+        date: date,
+        startTime: startTime,
+        endTime: endTime,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (id) {
+        const index = appData.appointments.findIndex(a => a.id === id);
+        if (index !== -1) appData.appointments[index] = appointment;
+    } else {
+        appData.appointments.push(appointment);
+    }
+    
+    saveData();
+    closeAllSheets();
+    renderAppointments();
+    updateDashboardStats();
+    
+    addNotification('موعد جديد', `تم إضافة موعد جديد ${appointment.date}`, 'reminder');
+    showToast(id ? 'تم تحديث الموعد بنجاح' : 'تمت إضافة الموعد بنجاح');
+}
+
+// ------------------- إدارة المصروفات -------------------
+function generateVoucherNumber() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const count = appData.expenses.length + 1;
+    return `EXP-${year}${month}-${String(count).padStart(4, '0')}`;
+}
+
+function renderExpenses() {
+    const tbody = document.getElementById('expensesTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    let totalExpenses = 0;
+    appData.expenses.forEach(exp => {
+        totalExpenses += (exp.total || 0);
+    });
+    document.getElementById('totalExpensesAmount').innerHTML = formatCurrency(totalExpenses);
+    document.getElementById('expensesCount').innerHTML = appData.expenses.length;
+    
+    appData.expenses.forEach(exp => {
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = exp.voucherNumber || '';
+        row.insertCell(1).innerHTML = exp.type || '';
+        row.insertCell(2).innerHTML = exp.item || '';
+        row.insertCell(3).innerHTML = exp.quantity || 0;
+        row.insertCell(4).innerHTML = formatCurrency(exp.price || 0);
+        row.insertCell(5).innerHTML = formatCurrency(exp.total || 0);
+        row.insertCell(6).innerHTML = exp.receiverName || '';
+        row.insertCell(7).innerHTML = exp.details || '';
+        row.insertCell(8).innerHTML = formatDate(exp.date);
+        row.insertCell(9).innerHTML = `
+            <div class="action-buttons">
+                <button class="action-btn delete" data-id="${exp.id}" title="حذف"><i class="fas fa-trash"></i></button>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.action-btn.delete').forEach(btn => {
+        btn.addEventListener('click', () => deleteExpense(parseInt(btn.dataset.id)));
+    });
+}
+
+function deleteExpense(id) {
+    Swal.fire({
+        title: 'تأكيد الحذف',
+        text: 'هل أنت متأكد من حذف هذا المصروف؟',
+        icon: 'warning',
+        confirmButtonText: 'حذف',
+        cancelButtonText: 'إلغاء',
+        showCancelButton: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const expense = appData.expenses.find(e => e.id === id);
+            if (expense) {
+                addBalanceTransaction(`حذف مصروف: ${expense.item || expense.type}`, 'expense_delete', -expense.total);
+            }
+            appData.expenses = appData.expenses.filter(e => e.id !== id);
+            saveData();
+            renderExpenses();
+            updateDashboardStats();
+            renderBalanceSection();
+            showToast('تم حذف المصروف بنجاح');
+        }
+    });
+}
+
+function saveExpense() {
+    const id = parseInt(document.getElementById('expenseId').value);
+    const type = document.getElementById('expenseType').value;
+    const item = document.getElementById('expenseItem').value;
+    const price = parseInt(document.getElementById('expensePrice').value) || 0;
+    const quantity = parseInt(document.getElementById('expenseQuantity').value) || 1;
+    const total = price * quantity;
+    const receiverName = document.getElementById('receiverName').value;
+    const details = document.getElementById('expenseDetails').value;
+    const date = document.getElementById('expenseDate').value || new Date().toISOString().split('T')[0];
+    
+    if (!item && !type) {
+        showToast('الرجاء إدخال صنف المصروف', 'error');
+        return;
+    }
+    
+    const expense = {
+        id: id || appData.nextIds.expense++,
+        voucherNumber: id ? undefined : generateVoucherNumber(),
+        type: type,
+        item: item,
+        price: price,
+        quantity: quantity,
+        total: total,
+        receiverName: receiverName,
+        details: details,
+        date: date,
+        createdAt: new Date().toISOString()
+    };
+    
+    if (!id) {
+        addBalanceTransaction(`${type}: ${item}`, 'expense', total);
+    }
+    
+    if (id) {
+        const index = appData.expenses.findIndex(e => e.id === id);
+        if (index !== -1) appData.expenses[index] = expense;
+    } else {
+        appData.expenses.push(expense);
+    }
+    
+    saveData();
+    closeAllSheets();
+    renderExpenses();
+    updateDashboardStats();
+    renderBalanceSection();
+    showToast(id ? 'تم تحديث المصروف بنجاح' : 'تمت إضافة المصروف بنجاح');
+}
+
+// ------------------- إدارة الرصيد والمعاملات -------------------
+let balanceTransactions = [];
+
+function loadBalanceTransactions() {
+    const saved = localStorage.getItem('balanceTransactions');
+    if (saved) balanceTransactions = JSON.parse(saved);
+}
+
+function saveBalanceTransactions() {
+    localStorage.setItem('balanceTransactions', JSON.stringify(balanceTransactions));
+}
+
+function addBalanceTransaction(description, type, amount) {
+    balanceTransactions.unshift({
+        id: Date.now(),
+        date: new Date().toISOString(),
+        description: description,
+        type: type,
+        amount: amount
+    });
+    saveBalanceTransactions();
+    renderBalanceSection();
+}
+
+function renderBalanceSection() {
+    const tbody = document.getElementById('balanceTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    let totalIncome = 0;
+    let totalExpense = 0;
+    
+    balanceTransactions.forEach(trans => {
+        if (trans.type === 'income') totalIncome += trans.amount;
+        else if (trans.type === 'expense') totalExpense += trans.amount;
+        else if (trans.type === 'expense_delete') totalExpense += trans.amount;
+        else if (trans.type === 'payment') totalIncome += trans.amount;
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = formatDate(trans.date);
+        row.insertCell(1).innerHTML = trans.description;
+        row.insertCell(2).innerHTML = trans.type === 'income' || trans.type === 'payment' ? 
+            '<span class="badge badge-success">إيراد</span>' : 
+            '<span class="badge badge-danger">مصروف</span>';
+        row.insertCell(3).innerHTML = trans.type === 'income' || trans.type === 'payment' ? 
+            formatCurrency(trans.amount) : 
+            formatCurrency(Math.abs(trans.amount));
+    });
+    
+    const currentBalance = totalIncome - totalExpense;
+    const netProfit = totalIncome - totalExpense;
+    
+    document.getElementById('balanceCurrentAmount').innerHTML = formatCurrency(currentBalance);
+    document.getElementById('balanceTotalIncome').innerHTML = formatCurrency(totalIncome);
+    document.getElementById('balanceTotalExpense').innerHTML = formatCurrency(totalExpense);
+    document.getElementById('balanceNetProfit').innerHTML = formatCurrency(netProfit);
+}
+
+// ------------------- إدارة الديون -------------------
+function renderDebts() {
+    const tbody = document.getElementById('debtsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    let totalDebts = 0;
+    const allDebts = [];
+    
+    appData.subscribers.forEach(sub => {
+        if (sub.remainingAmount > 0) {
+            allDebts.push({ name: sub.name, type: 'مشترك', amount: sub.remainingAmount, dueDate: null, id: sub.id, typeId: 'subscriber' });
+            totalDebts += sub.remainingAmount;
+        }
+    });
+    
+    appData.buyers.forEach(buyer => {
+        if (buyer.remainingAmount > 0) {
+            allDebts.push({ name: buyer.name, type: 'مشتري', amount: buyer.remainingAmount, dueDate: buyer.deliveryDate, id: buyer.id, typeId: 'buyer' });
+            totalDebts += buyer.remainingAmount;
+        }
+    });
+    
+    document.getElementById('debtsTotal').innerHTML = formatCurrency(totalDebts);
+    
+    allDebts.forEach(debt => {
+        const dueDateText = debt.dueDate ? formatDate(debt.dueDate) : 'غير محدد';
+        const status = 'مستحق';
+        
+        const row = tbody.insertRow();
+        row.insertCell(0).innerHTML = `<strong>${debt.name}</strong>`;
+        row.insertCell(1).innerHTML = debt.type;
+        row.insertCell(2).innerHTML = formatCurrency(debt.amount);
+        row.insertCell(3).innerHTML = dueDateText;
+        row.insertCell(4).innerHTML = `<span class="badge badge-danger">${status}</span>`;
+        row.insertCell(5).innerHTML = `
+            <div class="action-buttons">
+                <button class="action-btn pay" data-type="${debt.typeId}" data-id="${debt.id}" data-name="${debt.name}" data-amount="${debt.amount}" title="تسديد"><i class="fas fa-money-bill"></i></button>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.action-btn.pay').forEach(btn => {
+        btn.addEventListener('click', () => openPaymentSheet(btn.dataset.type, parseInt(btn.dataset.id), btn.dataset.name, parseFloat(btn.dataset.amount)));
+    });
+}
+
+function openPaymentSheet(type, id, name, amount) {
+    document.getElementById('debtId').value = id;
+    document.getElementById('debtorName').value = name;
+    document.getElementById('debtAmount').value = formatCurrency(amount);
+    document.getElementById('paymentAmount').value = amount;
+    document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+    
+    document.getElementById('paymentSheet').classList.add('show');
+    document.getElementById('sheetOverlay').classList.add('show');
+}
+
+function confirmPayment() {
+    const id = parseInt(document.getElementById('debtId').value);
+    const paymentAmount = parseInt(document.getElementById('paymentAmount').value) || 0;
+    const paymentDate = document.getElementById('paymentDate').value;
+    
+    let debtor = appData.subscribers.find(s => s.id === id);
+    let debtorType = 'subscriber';
+    
+    if (!debtor) {
+        debtor = appData.buyers.find(b => b.id === id);
+        debtorType = 'buyer';
+    }
+    
+    if (!debtor) return;
+    
+    if (paymentAmount > debtor.remainingAmount) {
+        showToast('المبلغ المدفوع أكبر من المبلغ المستحق', 'error');
+        return;
+    }
+    
+    debtor.remainingAmount -= paymentAmount;
+    debtor.paidAmount = (debtor.paidAmount || 0) + paymentAmount;
+    
+    addBalanceTransaction(`تسديد دين من ${debtor.name}`, 'payment', paymentAmount);
+    
+    saveData();
+    closeAllSheets();
+    renderDebts();
+    renderSubscribers();
+    renderBuyers();
+    updateDashboardStats();
+    renderBalanceSection();
+    addNotification('تسديد دين', `تم تسديد مبلغ ${formatCurrency(paymentAmount)} من ${debtor.name}`, 'debt');
+    showToast('تم تسديد الدين بنجاح');
+}
+
+// ------------------- إدارة الإشعارات -------------------
+function addNotification(title, message, type = 'system') {
+    const notification = {
+        id: appData.nextIds.notification++,
+        title: title,
+        message: message,
+        type: type,
+        date: new Date().toISOString(),
+        read: false
+    };
+    appData.notifications.unshift(notification);
+    
+    if (appData.notifications.length > 50) appData.notifications.pop();
+    
+    saveData();
+    renderNotifications();
+    updateNotificationBadge();
+    
+    if (Notification.permission === 'granted') {
+        new Notification(title, { body: message });
+    }
+}
+
+function renderNotifications() {
+    const container = document.getElementById('notificationsList');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (appData.notifications.length === 0) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>لا توجد إشعارات</p></div>';
+        return;
+    }
+    
+    appData.notifications.forEach(notif => {
+        const notifDiv = document.createElement('div');
+        notifDiv.className = `notification-item ${!notif.read ? 'unread' : ''}`;
+        notifDiv.innerHTML = `
+            <div class="notification-icon ${notif.type}">
+                <i class="fas ${notif.type === 'reminder' ? 'fa-calendar-alt' : (notif.type === 'debt' ? 'fa-file-invoice-dollar' : (notif.type === 'stats' ? 'fa-chart-line' : 'fa-info-circle'))}"></i>
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${notif.title}</div>
+                <div class="notification-message">${notif.message}</div>
+                <div class="notification-time">${formatDateTime(notif.date)}</div>
+            </div>
+            <button class="btn btn-sm delete-notification" data-id="${notif.id}"><i class="fas fa-times"></i></button>
+        `;
+        container.appendChild(notifDiv);
+        
+        notifDiv.querySelector('.delete-notification').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteNotification(notif.id);
+        });
+        
+        notifDiv.addEventListener('click', () => {
+            if (!notif.read) {
+                notif.read = true;
+                saveData();
+                renderNotifications();
+                updateNotificationBadge();
+            }
+        });
+    });
+}
+
+function deleteNotification(id) {
+    appData.notifications = appData.notifications.filter(n => n.id !== id);
+    saveData();
+    renderNotifications();
+    updateNotificationBadge();
+}
+
+function markAllNotificationsRead() {
+    appData.notifications.forEach(n => n.read = true);
+    saveData();
+    renderNotifications();
+    updateNotificationBadge();
+    showToast('تم تحديد جميع الإشعارات كمقروءة');
+}
+
+function updateNotificationBadge() {
+    const unreadCount = appData.notifications.filter(n => !n.read).length;
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+        if (unreadCount > 0) {
+            badge.style.display = 'flex';
+            badge.innerText = unreadCount > 9 ? '9+' : unreadCount;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+// ------------------- وظائف البحث -------------------
+function setupSearch() {
+    const searchInput = document.getElementById('globalSearch');
+    const searchResults = document.getElementById('searchResults');
+    
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        if (query.length < 2) {
+            searchResults.style.display = 'none';
+            return;
+        }
+        
+        const results = [];
+        
+        appData.subscribers.forEach(sub => {
+            if (sub.name.toLowerCase().includes(query)) {
+                results.push({ type: 'subscriber', id: sub.id, name: sub.name, info: `مشترك - هاتف: ${sub.phone || 'غير متوفر'}` });
+            }
+        });
+        
+        appData.buyers.forEach(buyer => {
+            if (buyer.name.toLowerCase().includes(query)) {
+                results.push({ type: 'buyer', id: buyer.id, name: buyer.name, info: `مشتري - هاتف: ${buyer.phone || 'غير متوفر'}` });
+            }
+        });
+        
+        if (results.length === 0) {
+            searchResults.innerHTML = '<div class="search-result-item">لا توجد نتائج</div>';
+        } else {
+            searchResults.innerHTML = results.map(r => `
+                <div class="search-result-item" data-type="${r.type}" data-id="${r.id}">
+                    <i class="fas ${r.type === 'subscriber' ? 'fa-user' : 'fa-user-tag'}"></i>
+                    <div><strong>${r.name}</strong><br><small>${r.info}</small></div>
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.search-result-item[data-id]').forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.dataset.type;
+                    const id = parseInt(item.dataset.id);
+                    if (type === 'subscriber') {
+                        editSubscriber(id);
+                    } else {
+                        editBuyer(id);
+                    }
+                    searchResults.style.display = 'none';
+                    searchInput.value = '';
+                });
+            });
+        }
+        
+        searchResults.style.display = 'block';
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            searchResults.style.display = 'none';
+        }
+    });
+}
+
+// ------------------- إدارة البيانات (حفظ واسترجاع) -------------------
+function saveData() {
+    localStorage.setItem('appData', JSON.stringify(appData));
+}
+
+function loadData() {
+    const saved = localStorage.getItem('appData');
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            appData = { ...appData, ...parsed };
+        } catch(e) { console.error('Error loading data', e); }
+    }
+    
+    if (!appData.subscribers) appData.subscribers = [];
+    if (!appData.buyers) appData.buyers = [];
+    if (!appData.appointments) appData.appointments = [];
+    if (!appData.expenses) appData.expenses = [];
+    if (!appData.purchases) appData.purchases = [];
+    if (!appData.notifications) appData.notifications = [];
+    if (!appData.settings) appData.settings = { reminderToggle: true, debtToggle: true, weeklyToggle: true };
+    if (!appData.nextIds) appData.nextIds = { subscriber: 1, buyer: 1, appointment: 1, expense: 1, purchase: 1, notification: 1 };
+}
+
+function backupData() {
+    const dataStr = JSON.stringify(appData);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `systar_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('تم تصدير النسخة الاحتياطية بنجاح');
+}
+
+function restoreData(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const restored = JSON.parse(e.target.result);
+            appData = { ...appData, ...restored };
+            saveData();
+            location.reload();
+        } catch(err) {
+            showToast('خطأ في ملف الاستعادة', 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+function clearAllData() {
+    Swal.fire({
+        title: 'تأكيد مسح البيانات',
+        text: 'هل أنت متأكد؟ سيتم حذف جميع البيانات نهائياً',
+        icon: 'warning',
+        confirmButtonText: 'مسح الكل',
+        cancelButtonText: 'إلغاء',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.clear();
+            location.reload();
+        }
+    });
+}
+
+// ------------------- التقارير -------------------
+function generateReports() {
+    const totalIncome = calculateTotalIncome();
+    const totalExpense = calculateTotalExpense();
+    const netProfit = totalIncome - totalExpense;
+    const avgRevenue = appData.subscribers.length > 0 ? totalIncome / appData.subscribers.length : 0;
+    
+    document.getElementById('reportTotalRevenue').innerHTML = formatCurrency(totalIncome);
+    document.getElementById('reportAvgRevenue').innerHTML = formatCurrency(avgRevenue);
+}
+
+function exportPDFReport() {
+    const element = document.getElementById('reports');
+    if (!element) return;
+    
+    const opt = {
+        margin: [10, 10, 10, 10],
+        filename: `systar_report_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+    showToast('جاري تصدير التقرير...');
+}
+
+// ------------------- تهيئة التطبيق -------------------
+function initApp() {
+    loadData();
+    loadBalanceTransactions();
+    
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    
+    document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+    
+    renderSubscribers();
+    renderBuyers();
+    renderAppointments();
+    renderExpenses();
+    renderDebts();
+    renderNotifications();
+    updateDashboardStats();
+    generateReports();
+    renderBalanceSection();
+    
+    setupSearch();
+    
+    checkWeeklyReport();
+    
+    setInterval(() => {
+        checkUpcomingAppointments();
+        checkDebtReminders();
+    }, 60000);
+    
+    if (appData.subscribers.length === 0 && appData.buyers.length === 0) {
+        addSampleData();
+    }
+}
+
+function checkWeeklyReport() {
+    const lastReport = appData.settings.lastWeeklyReport;
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (appData.settings.weeklyToggle && (!lastReport || lastReport !== today)) {
+        appData.settings.lastWeeklyReport = today;
+        saveData();
+    }
+}
+
+function checkUpcomingAppointments() {
+    if (!appData.settings.reminderToggle) return;
+    
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    appData.appointments.forEach(apt => {
+        const aptDate = new Date(apt.date + 'T' + apt.startTime);
+        if (aptDate > now && aptDate < tomorrow) {
+            const alreadyNotified = appData.notifications.some(n => 
+                n.title === 'تذكير بموعد' && n.message.includes(apt.date)
+            );
+            if (!alreadyNotified) {
+                const client = apt.clientType === 'subscriber' 
+                    ? appData.subscribers.find(s => s.id === apt.clientId)
+                    : appData.buyers.find(b => b.id === apt.clientId);
+                if (client) {
+                    addNotification('تذكير بموعد', `لديك موعد مع ${client.name} غداً الساعة ${apt.startTime}`, 'reminder');
+                }
+            }
+        }
+    });
+}
+
+function checkDebtReminders() {
+    if (!appData.settings.debtToggle) return;
+    
+    const today = new Date();
+    const nextWeek = new Date(today);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    
+    appData.buyers.forEach(buyer => {
+        if (buyer.remainingAmount > 0 && buyer.deliveryDate) {
+            const dueDate = new Date(buyer.deliveryDate);
+            if (dueDate > today && dueDate < nextWeek) {
+                const alreadyNotified = appData.notifications.some(n => 
+                    n.title === 'تنبيه دين' && n.message.includes(buyer.name)
+                );
+                if (!alreadyNotified) {
+                    addNotification('تنبيه دين', `دين المشتري ${buyer.name} بقيمة ${formatCurrency(buyer.remainingAmount)} يستحق قريباً`, 'debt');
+                }
+            }
+        }
+    });
+}
+
+function addSampleData() {
+    appData.subscribers.push({
+        id: appData.nextIds.subscriber++,
+        name: 'أحمد محمد',
+        hoursPerWeek: 10,
+        takenHours: 4,
+        paidAmount: 200,
+        remainingAmount: 300,
+        phone: '0501234567',
+        createdAt: new Date().toISOString()
+    });
+    
+    appData.subscribers.push({
+        id: appData.nextIds.subscriber++,
+        name: 'محمد علي',
+        hoursPerWeek: 8,
+        takenHours: 2,
+        paidAmount: 100,
+        remainingAmount: 300,
+        phone: '0551234567',
+        createdAt: new Date().toISOString()
+    });
+    
+    appData.buyers.push({
+        id: appData.nextIds.buyer++,
+        name: 'خالد عبدالله',
+        hours: 5,
+        deliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+        paidAmount: 100,
+        remainingAmount: 150,
+        phone: '0531234567',
+        createdAt: new Date().toISOString()
+    });
+    
+    appData.expenses.push({
+        id: appData.nextIds.expense++,
+        voucherNumber: generateVoucherNumber(),
+        type: 'مواد',
+        item: 'مضخة مياه',
+        price: 500,
+        quantity: 1,
+        total: 500,
+        receiverName: 'محل السباكة',
+        details: 'مضخة بقدرة 1 حصان',
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString()
+    });
+    
+    addBalanceTransaction('إضافة مشترك أحمد محمد', 'income', 200);
+    addBalanceTransaction('شراء مضخة مياه', 'expense', 500);
+    
+    addNotification('مرحباً بك في سيستار برو', 'تم إعداد النظام بنجاح، يمكنك البدء في إدارة آبارك', 'system');
+    
+    saveData();
+}
+
+// ------------------- إدارة واجهة المستخدم والتنقل -------------------
+function switchSection(sectionId) {
+    document.querySelectorAll('.section').forEach(section => {
+        section.classList.remove('active');
+    });
+    document.getElementById(sectionId).classList.add('active');
+    
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionId) {
+            item.classList.add('active');
+        }
+    });
+    
+    currentSection = sectionId;
+    
+    if (sectionId === 'dashboard') updateDashboardStats();
+    else if (sectionId === 'subscribers') renderSubscribers();
+    else if (sectionId === 'buyers') renderBuyers();
+    else if (sectionId === 'appointments') renderAppointments();
+    else if (sectionId === 'debts') renderDebts();
+    else if (sectionId === 'expenses') renderExpenses();
+    else if (sectionId === 'reports') generateReports();
+    else if (sectionId === 'balanceSection') renderBalanceSection();
+}
+
+function closeAllSheets() {
+    document.querySelectorAll('.bottom-sheet').forEach(sheet => {
+        sheet.classList.remove('show');
+    });
+    document.getElementById('sheetOverlay').classList.remove('show');
+    
+    document.getElementById('subscriberId').value = '';
+    document.getElementById('subscriberName').value = '';
+    document.getElementById('buyerId').value = '';
+    document.getElementById('buyerName').value = '';
+    document.getElementById('appointmentId').value = '';
+    document.getElementById('expenseId').value = '';
+}
+
+// ------------------- إعدادات التطبيق -------------------
+function setupSettings() {
+    const reminderToggle = document.getElementById('reminderToggle');
+    const debtToggle = document.getElementById('debtToggle');
+    const weeklyToggle = document.getElementById('weeklyToggle');
+    
+    if (appData.settings.reminderToggle) reminderToggle.classList.add('active');
+    if (appData.settings.debtToggle) debtToggle.classList.add('active');
+    if (appData.settings.weeklyToggle) weeklyToggle.classList.add('active');
+    
+    reminderToggle.addEventListener('click', () => {
+        reminderToggle.classList.toggle('active');
+        appData.settings.reminderToggle = reminderToggle.classList.contains('active');
+        saveData();
+    });
+    
+    debtToggle.addEventListener('click', () => {
+        debtToggle.classList.toggle('active');
+        appData.settings.debtToggle = debtToggle.classList.contains('active');
+        saveData();
+    });
+    
+    weeklyToggle.addEventListener('click', () => {
+        weeklyToggle.classList.toggle('active');
+        appData.settings.weeklyToggle = weeklyToggle.classList.contains('active');
+        saveData();
+    });
+    
+    document.getElementById('backupDataBtn').addEventListener('click', () => backupData());
+    
+    document.getElementById('restoreDataBtn').addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'application/json';
+        input.onchange = (e) => {
+            if (e.target.files[0]) restoreData(e.target.files[0]);
+        };
+        input.click();
+    });
+    
+    document.getElementById('clearDataBtn').addEventListener('click', () => clearAllData());
+}
+
+// ------------------- ربط الأحداث -------------------
+function bindEvents() {
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchSection(btn.dataset.section);
+        });
+    });
+    
+    document.getElementById('expensesHeaderBtn').addEventListener('click', () => switchSection('expenses'));
+    document.getElementById('notificationsHeaderBtn').addEventListener('click', () => switchSection('notifications'));
+    document.getElementById('balanceHeaderBtn').addEventListener('click', () => switchSection('balanceSection'));
+    document.getElementById('settingsHeaderBtn').addEventListener('click', () => switchSection('settings'));
+    
+    document.getElementById('printSubscribersBtn').addEventListener('click', () => printSection('subscribers', 'قائمة المشتركين'));
+    document.getElementById('printBuyersBtn').addEventListener('click', () => printSection('buyers', 'قائمة المشترين'));
+    document.getElementById('printAppointmentsBtn').addEventListener('click', () => printSection('appointments', 'قائمة المواعيد'));
+    document.getElementById('printDebtsBtn').addEventListener('click', () => printSection('debts', 'قائمة الديون'));
+    document.getElementById('printExpensesBtn').addEventListener('click', () => printSection('expenses', 'قائمة المصروفات'));
+    
+    document.getElementById('addSubscriberBtn').addEventListener('click', () => {
+        document.getElementById('subscriberId').value = '';
+        document.getElementById('subscriberName').value = '';
+        document.getElementById('hoursPerWeek').value = 10;
+        document.getElementById('takenHours').value = 0;
+        document.getElementById('paidAmount').value = 0;
+        document.getElementById('remainingAmount').value = 0;
+        document.getElementById('subscriberPhone').value = '';
+        document.getElementById('subscriberSheet').classList.add('show');
+        document.getElementById('sheetOverlay').classList.add('show');
+    });
+    
+    document.getElementById('addBuyerBtn').addEventListener('click', () => {
+        document.getElementById('buyerId').value = '';
+        document.getElementById('buyerName').value = '';
+        document.getElementById('hoursCount').value = 0;
+        document.getElementById('deliveryDate').value = '';
+        document.getElementById('buyerPaid').value = 0;
+        document.getElementById('buyerRemaining').value = 0;
+        document.getElementById('buyerPhone').value = '';
+        document.getElementById('buyerSheet').classList.add('show');
+        document.getElementById('sheetOverlay').classList.add('show');
+    });
+    
+    document.getElementById('addAppointmentBtn').addEventListener('click', () => {
+        document.getElementById('appointmentId').value = '';
+        document.getElementById('clientType').value = 'subscriber';
+        updateClientSelect('subscriber');
+        document.getElementById('appointmentDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('startTime').value = '';
+        document.getElementById('endTime').value = '';
+        document.getElementById('appointmentSheet').classList.add('show');
+        document.getElementById('sheetOverlay').classList.add('show');
+    });
+    
+    document.getElementById('addExpenseBtn').addEventListener('click', () => {
+        document.getElementById('expenseId').value = '';
+        document.getElementById('expenseItem').value = '';
+        document.getElementById('expensePrice').value = 0;
+        document.getElementById('expenseQuantity').value = 1;
+        document.getElementById('receiverName').value = '';
+        document.getElementById('expenseDetails').value = '';
+        document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('expenseSheet').classList.add('show');
+        document.getElementById('sheetOverlay').classList.add('show');
+    });
+    
+    document.getElementById('fabBtn').addEventListener('click', () => {
+        const sheets = ['subscriberSheet', 'buyerSheet', 'appointmentSheet', 'expenseSheet'];
+        const activeSheet = sheets.find(sheet => document.getElementById(sheet).classList.contains('show'));
+        if (activeSheet) {
+            closeAllSheets();
+        } else {
+            document.getElementById('subscriberSheet').classList.add('show');
+            document.getElementById('sheetOverlay').classList.add('show');
+        }
+    });
+    
+    document.getElementById('saveSubscriber').addEventListener('click', saveSubscriber);
+    document.getElementById('saveBuyer').addEventListener('click', saveBuyer);
+    document.getElementById('saveAppointment').addEventListener('click', saveAppointment);
+    document.getElementById('saveExpense').addEventListener('click', saveExpense);
+    document.getElementById('confirmPurchaseBtn').addEventListener('click', confirmPurchase);
+    document.getElementById('confirmPayment').addEventListener('click', confirmPayment);
+    document.getElementById('markAllReadBtn').addEventListener('click', markAllNotificationsRead);
+    document.getElementById('exportPdfReportBtn').addEventListener('click', exportPDFReport);
+    document.getElementById('exportBalanceBtn').addEventListener('click', () => backupData());
+    
+    document.getElementById('expensePrice').addEventListener('input', () => {
+        const price = parseInt(document.getElementById('expensePrice').value) || 0;
+        const quantity = parseInt(document.getElementById('expenseQuantity').value) || 1;
+        document.getElementById('expenseTotal').value = formatCurrency(price * quantity);
+    });
+    
+    document.getElementById('expenseQuantity').addEventListener('input', () => {
+        const price = parseInt(document.getElementById('expensePrice').value) || 0;
+        const quantity = parseInt(document.getElementById('expenseQuantity').value) || 1;
+        document.getElementById('expenseTotal').value = formatCurrency(price * quantity);
+    });
+    
+    document.getElementById('purchaseHours').addEventListener('input', calculatePurchaseTotal);
+    document.getElementById('hourPrice').addEventListener('input', calculatePurchaseTotal);
+    document.getElementById('paidAmountPurchase').addEventListener('input', calculatePurchaseTotal);
+    
+    document.getElementById('clientType').addEventListener('change', (e) => {
+        updateClientSelect(e.target.value);
+    });
+    
+    document.querySelectorAll('.close-sheet').forEach(btn => {
+        btn.addEventListener('click', closeAllSheets);
+    });
+    document.getElementById('sheetOverlay').addEventListener('click', closeAllSheets);
+}
+
+// ------------------- بدء التطبيق -------------------
+document.addEventListener('DOMContentLoaded', () => {
+    initApp();
+    bindEvents();
+    setupSettings();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2c7873">
+    <title>سيستار برو - الإعدادات</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: #f8fafc;
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #2c7873, #1a4a46);
+            padding: 20px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .app-header h1 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            flex: 1;
+        }
+
+        /* Settings Groups */
+        .settings-container {
+            padding: 16px;
+        }
+
+        .settings-group {
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .group-title {
+            padding: 16px 20px;
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #2c7873;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item:active {
+            background: #f8fafc;
+        }
+
+        .setting-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .setting-info i {
+            width: 30px;
+            font-size: 1.2rem;
+            color: #2c7873;
+        }
+
+        .setting-text {
+            flex: 1;
+        }
+
+        .setting-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #0f172a;
+        }
+
+        .setting-description {
+            font-size: 0.7rem;
+            color: #64748b;
+            margin-top: 2px;
+        }
+
+        .setting-value {
+            color: #2c7873;
+            font-size: 0.85rem;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            width: 50px;
+            height: 26px;
+            background: #cbd5e1;
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #2c7873;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 3px;
+            transition: 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            left: 25px;
+        }
+
+        /* Badge */
+        .badge {
+            background: #e2e8f0;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: #475569;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        .badge-warning {
+            background: #fed7aa;
+            color: #f59e0b;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 16px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            flex: 1;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+
+        .nav-item span {
+            font-size: 0.65rem;
+            color: #94a3b8;
+        }
+
+        .nav-item.active i,
+        .nav-item.active span {
+            color: #2c7873;
+        }
+
+        /* Fingerprint Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.95); }
+        }
+
+        .fingerprint-demo {
+            background: linear-gradient(135deg, #2c7873, #1a4a46);
+            border-radius: 60px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .fingerprint-demo i {
+            font-size: 60px;
+            color: white;
+            margin-bottom: 15px;
+        }
+
+        .fingerprint-demo h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .fingerprint-demo p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-content">
+                <button class="back-btn" id="backBtn">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <h1><i class="fas fa-cog"></i> الإعدادات</h1>
+            </div>
+        </div>
+
+        <div class="settings-container">
+            <!-- قسم البصمة -->
+            <div class="fingerprint-demo" id="fingerprintCard">
+                <i class="fas fa-fingerprint" id="fingerprintIcon"></i>
+                <h3 id="fingerprintTitle">بصمة الإصبع</h3>
+                <p id="fingerprintDesc">سجل الدخول بلمسة واحدة باستخدام بصمة جهازك</p>
+                <div style="margin-top: 15px;">
+                    <span class="badge" id="fingerprintStatus">جاري التحقق...</span>
+                </div>
+            </div>
+
+            <!-- إعدادات الإشعارات -->
+            <div class="settings-group">
+                <div class="group-title">
+                    <i class="fas fa-bell"></i>
+                    <span>الإشعارات والتنبيهات</span>
+                </div>
+                <div class="setting-item" id="reminderSetting">
+                    <div class="setting-info">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">تذكير المواعيد</div>
+                            <div class="setting-description">إشعار قبل الموعد بيوم</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="reminderToggle"></div>
+                </div>
+                <div class="setting-item" id="debtSetting">
+                    <div class="setting-info">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">تنبيه الديون</div>
+                            <div class="setting-description">إشعار قبل استحقاق الدين</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="debtToggle"></div>
+                </div>
+                <div class="setting-item" id="weeklySetting">
+                    <div class="setting-info">
+                        <i class="fas fa-chart-line"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">التقارير الأسبوعية</div>
+                            <div class="setting-description">إحصائيات كل أسبوع</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="weeklyToggle"></div>
+                </div>
+            </div>
+
+            <!-- إدارة البيانات -->
+            <div class="settings-group">
+                <div class="group-title">
+                    <i class="fas fa-database"></i>
+                    <span>إدارة البيانات</span>
+                </div>
+                <div class="setting-item" id="backupData">
+                    <div class="setting-info">
+                        <i class="fas fa-download"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">نسخ احتياطي</div>
+                            <div class="setting-description">تصدير جميع البيانات إلى ملف</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left setting-value"></i>
+                </div>
+                <div class="setting-item" id="restoreData">
+                    <div class="setting-info">
+                        <i class="fas fa-upload"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">استعادة بيانات</div>
+                            <div class="setting-description">استيراد من نسخة احتياطية</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left setting-value"></i>
+                </div>
+                <div class="setting-item" id="clearData">
+                    <div class="setting-info">
+                        <i class="fas fa-trash-alt"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">مسح البيانات</div>
+                            <div class="setting-description">حذف جميع البيانات نهائياً</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left setting-value"></i>
+                </div>
+            </div>
+
+            <!-- إعدادات الحساب -->
+            <div class="settings-group">
+                <div class="group-title">
+                    <i class="fas fa-user-circle"></i>
+                    <span>الحساب والأمان</span>
+                </div>
+                <div class="setting-item" id="changePassword">
+                    <div class="setting-info">
+                        <i class="fas fa-key"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">تغيير كلمة المرور</div>
+                            <div class="setting-description">تحديث كلمة المرور الخاصة بك</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left setting-value"></i>
+                </div>
+                <div class="setting-item" id="manageBiometric">
+                    <div class="setting-info">
+                        <i class="fas fa-fingerprint"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">إدارة البصمة</div>
+                            <div class="setting-description" id="biometricDesc">تفعيل أو إلغاء بصمة الجهاز</div>
+                        </div>
+                    </div>
+                    <div class="toggle-switch" id="biometricToggle"></div>
+                </div>
+                <div class="setting-item" id="logoutBtn">
+                    <div class="setting-info">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">تسجيل الخروج</div>
+                            <div class="setting-description">الخروج من التطبيق</div>
+                        </div>
+                    </div>
+                    <i class="fas fa-chevron-left setting-value"></i>
+                </div>
+            </div>
+
+            <!-- معلومات التطبيق -->
+            <div class="settings-group">
+                <div class="group-title">
+                    <i class="fas fa-info-circle"></i>
+                    <span>معلومات التطبيق</span>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-code-branch"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">الإصدار</div>
+                            <div class="setting-description">سيستار برو 2.0</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <i class="fas fa-shield-alt"></i>
+                        <div class="setting-text">
+                            <div class="setting-label">الأمان</div>
+                            <div class="setting-description">تشفير 256-bit • WebAuthn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </button>
+            <button class="nav-item" data-page="subscribers">
+                <i class="fas fa-users"></i>
+                <span>المشتركين</span>
+            </button>
+            <button class="nav-item" data-page="reports">
+                <i class="fas fa-chart-line"></i>
+                <span>التقارير</span>
+            </button>
+            <button class="nav-item active" data-page="settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // سيستار برو - صفحة الإعدادات المتكاملة
+        // مع تفعيل بصمة الجهاز الحقيقية
+        // ==========================================
+
+        // المستخدم الحالي
+        let currentUser = null;
+        let appData = {
+            settings: {
+                reminderToggle: true,
+                debtToggle: true,
+                weeklyToggle: true,
+                biometricEnabled: false
+            }
+        };
+
+        // ------------------- تحميل البيانات -------------------
+        function loadData() {
+            // تحميل جلسة المستخدم
+            const session = localStorage.getItem('systar_session') || sessionStorage.getItem('systar_session');
+            if (session) {
+                const sessionData = JSON.parse(session);
+                currentUser = sessionData;
+            }
+            
+            // تحميل إعدادات التطبيق
+            const saved = localStorage.getItem('systar_settings');
+            if (saved) {
+                appData.settings = JSON.parse(saved);
+            }
+            
+            // تحميل بيانات المستخدمين
+            const users = JSON.parse(localStorage.getItem('systar_users_fingerprint') || '[]');
+            if (currentUser && users.length > 0) {
+                const user = users.find(u => u.username === currentUser.username);
+                if (user && user.hasBiometric) {
+                    appData.settings.biometricEnabled = true;
+                }
+            }
+        }
+
+        function saveSettings() {
+            localStorage.setItem('systar_settings', JSON.stringify(appData.settings));
+        }
+
+        // ------------------- WebAuthn - بصمة الجهاز الحقيقية -------------------
+        
+        function isWebAuthnSupported() {
+            return window.PublicKeyCredential !== undefined && 
+                   typeof window.PublicKeyCredential === 'function';
+        }
+
+        async function isBiometricAvailable() {
+            if (!isWebAuthnSupported()) return false;
+            try {
+                const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+                return available;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        async function getAuthenticatorType() {
+            if (!await isBiometricAvailable()) return null;
+            const ua = navigator.userAgent.toLowerCase();
+            if (ua.includes('android')) return 'بصمة الأندرويد';
+            if (ua.includes('windows')) return 'Windows Hello';
+            if (ua.includes('mac')) return 'Touch ID';
+            if (ua.includes('iphone') || ua.includes('ipad')) return 'Face ID / Touch ID';
+            return 'المصادقة البيومترية';
+        }
+
+        // تسجيل بصمة الجهاز
+        async function registerBiometric() {
+            if (!currentUser) {
+                Swal.fire('خطأ', 'الرجاء تسجيل الدخول أولاً', 'error');
+                return false;
+            }
+            
+            if (!await isBiometricAvailable()) {
+                const authType = await getAuthenticatorType();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'البصمة غير مدعومة',
+                    html: `جهازك لا يدعم المصادقة البيومترية.<br><br>
+                           <strong>لتفعيل البصمة على أندرويد:</strong><br>
+                           1. اذهب إلى الإعدادات<br>
+                           2. الأمان > بصمة الأصابع<br>
+                           3. أضف بصمة`,
+                    confirmButtonColor: '#2c7873'
+                });
+                return false;
+            }
+
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                
+                const publicKeyCredentialCreationOptions = {
+                    challenge: challenge,
+                    rp: {
+                        name: "سيستار برو",
+                        id: window.location.hostname === 'localhost' ? 'localhost' : window.location.hostname
+                    },
+                    user: {
+                        id: new TextEncoder().encode(currentUser.username + '_' + Date.now()),
+                        name: currentUser.username,
+                        displayName: currentUser.username
+                    },
+                    pubKeyCredParams: [
+                        { alg: -7, type: "public-key" },
+                        { alg: -257, type: "public-key" }
+                    ],
+                    authenticatorSelection: {
+                        authenticatorAttachment: "platform",
+                        userVerification: "required",
+                        requireResidentKey: false
+                    },
+                    timeout: 60000,
+                    attestation: "none"
+                };
+
+                const credential = await navigator.credentials.create({
+                    publicKey: publicKeyCredentialCreationOptions
+                });
+
+                const credentialData = {
+                    id: credential.id,
+                    rawId: Array.from(new Uint8Array(credential.rawId)),
+                    type: credential.type,
+                    username: currentUser.username,
+                    registeredAt: new Date().toISOString()
+                };
+                
+                localStorage.setItem('biometric_device_' + currentUser.username, JSON.stringify(credentialData));
+                
+                // تحديث حالة المستخدم
+                const users = JSON.parse(localStorage.getItem('systar_users_fingerprint') || '[]');
+                const userIndex = users.findIndex(u => u.username === currentUser.username);
+                if (userIndex !== -1) {
+                    users[userIndex].hasBiometric = true;
+                    users[userIndex].deviceId = credentialData.id;
+                    localStorage.setItem('systar_users_fingerprint', JSON.stringify(users));
+                }
+                
+                appData.settings.biometricEnabled = true;
+                saveSettings();
+                
+                return true;
+            } catch (error) {
+                console.error('Biometric registration error:', error);
+                throw new Error(error.message || 'فشل تسجيل البصمة');
+            }
+        }
+
+        // إلغاء تسجيل البصمة
+        function unregisterBiometric() {
+            localStorage.removeItem('biometric_device_' + currentUser.username);
+            
+            const users = JSON.parse(localStorage.getItem('systar_users_fingerprint') || '[]');
+            const userIndex = users.findIndex(u => u.username === currentUser.username);
+            if (userIndex !== -1) {
+                users[userIndex].hasBiometric = false;
+                users[userIndex].deviceId = null;
+                localStorage.setItem('systar_users_fingerprint', JSON.stringify(users));
+            }
+            
+            appData.settings.biometricEnabled = false;
+            saveSettings();
+            
+            return true;
+        }
+
+        // ------------------- تحديث واجهة البصمة -------------------
+        async function updateBiometricUI() {
+            const supported = isWebAuthnSupported();
+            const available = await isBiometricAvailable();
+            const authType = await getAuthenticatorType();
+            
+            const fingerprintCard = document.getElementById('fingerprintCard');
+            const fingerprintIcon = document.getElementById('fingerprintIcon');
+            const fingerprintTitle = document.getElementById('fingerprintTitle');
+            const fingerprintDesc = document.getElementById('fingerprintDesc');
+            const fingerprintStatus = document.getElementById('fingerprintStatus');
+            const biometricToggle = document.getElementById('biometricToggle');
+            const biometricDesc = document.getElementById('biometricDesc');
+            
+            if (supported && available) {
+                fingerprintStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${authType} متاحة`;
+                fingerprintStatus.className = 'badge badge-success';
+                fingerprintIcon.style.animation = 'none';
+                
+                if (appData.settings.biometricEnabled) {
+                    fingerprintTitle.innerHTML = '✓ البصمة مفعلة';
+                    fingerprintDesc.innerHTML = 'يمكنك الآن تسجيل الدخول باستخدام بصمة إصبعك';
+                    biometricToggle.classList.add('active');
+                    biometricDesc.innerHTML = 'إلغاء بصمة الجهاز';
+                } else {
+                    fingerprintTitle.innerHTML = 'بصمة الإصبع';
+                    fingerprintDesc.innerHTML = 'فعّل البصمة لتسجيل الدخول بلمسة واحدة';
+                    biometricToggle.classList.remove('active');
+                    biometricDesc.innerHTML = 'تفعيل بصمة الجهاز';
+                }
+            } else {
+                fingerprintStatus.innerHTML = `<i class="fas fa-times-circle"></i> البصمة غير مدعومة`;
+                fingerprintStatus.className = 'badge badge-warning';
+                fingerprintIcon.style.opacity = '0.5';
+                biometricToggle.style.opacity = '0.5';
+                biometricToggle.style.pointerEvents = 'none';
+                biometricDesc.innerHTML = 'جهازك لا يدعم البصمة';
+            }
+        }
+
+        // ------------------- تفعيل/إلغاء البصمة -------------------
+        async function toggleBiometric() {
+            if (!currentUser) {
+                Swal.fire('خطأ', 'الرجاء تسجيل الدخول أولاً', 'error');
+                return;
+            }
+            
+            if (appData.settings.biometricEnabled) {
+                // إلغاء تفعيل البصمة
+                Swal.fire({
+                    title: 'إلغاء البصمة',
+                    text: 'هل أنت متأكد من إلغاء تفعيل بصمة الجهاز؟',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، إلغاء',
+                    cancelButtonText: 'إلغاء',
+                    confirmButtonColor: '#ef4444'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        unregisterBiometric();
+                        updateBiometricUI();
+                        Swal.fire('تم الإلغاء', 'تم إلغاء تفعيل بصمة الجهاز', 'success');
+                    }
+                });
+            } else {
+                // تفعيل البصمة
+                Swal.fire({
+                    title: 'تفعيل البصمة',
+                    html: `
+                        <div style="padding: 10px; text-align: center;">
+                            <i class="fas fa-fingerprint" style="font-size: 50px; color: #2c7873; margin-bottom: 15px;"></i>
+                            <p>الرجاء وضع إصبعك على مستشعر البصمة</p>
+                            <p style="font-size: 12px; color: #666; margin-top: 10px;">سيظهر الآن مربع حوار نظام التشغيل</p>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: async () => {
+                        try {
+                            await registerBiometric();
+                            Swal.close();
+                            await updateBiometricUI();
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'تم التفعيل',
+                                text: 'تم تفعيل بصمة الجهاز بنجاح! يمكنك الآن تسجيل الدخول بلمسة واحدة',
+                                confirmButtonColor: '#2c7873'
+                            });
+                        } catch (error) {
+                            Swal.close();
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'فشل التفعيل',
+                                text: error.message,
+                                confirmButtonColor: '#2c7873'
+                            });
+                        }
+                    }
+                });
+            }
+        }
+
+        // ------------------- وظائف الإعدادات الأخرى -------------------
+        
+        // تحديث واجهة أزرار التبديل
+        function updateToggles() {
+            const reminderToggle = document.getElementById('reminderToggle');
+            const debtToggle = document.getElementById('debtToggle');
+            const weeklyToggle = document.getElementById('weeklyToggle');
+            
+            if (appData.settings.reminderToggle) reminderToggle.classList.add('active');
+            if (appData.settings.debtToggle) debtToggle.classList.add('active');
+            if (appData.settings.weeklyToggle) weeklyToggle.classList.add('active');
+        }
+        
+        // تغيير كلمة المرور
+        function changePassword() {
+            Swal.fire({
+                title: 'تغيير كلمة المرور',
+                html: `
+                    <input type="password" id="oldPassword" class="swal2-input" placeholder="كلمة المرور الحالية">
+                    <input type="password" id="newPassword" class="swal2-input" placeholder="كلمة المرور الجديدة">
+                    <input type="password" id="confirmPassword" class="swal2-input" placeholder="تأكيد كلمة المرور الجديدة">
+                `,
+                confirmButtonText: 'تغيير',
+                cancelButtonText: 'إلغاء',
+                showCancelButton: true,
+                confirmButtonColor: '#2c7873',
+                preConfirm: () => {
+                    const oldPass = document.getElementById('oldPassword').value;
+                    const newPass = document.getElementById('newPassword').value;
+                    const confirmPass = document.getElementById('confirmPassword').value;
+                    
+                    if (!oldPass || !newPass || !confirmPass) {
+                        Swal.showValidationMessage('الرجاء ملء جميع الحقول');
+                        return false;
+                    }
+                    
+                    if (newPass.length < 6) {
+                        Swal.showValidationMessage('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل');
+                        return false;
+                    }
+                    
+                    if (newPass !== confirmPass) {
+                        Swal.showValidationMessage('كلمة المرور الجديدة غير متطابقة');
+                        return false;
+                    }
+                    
+                    return { oldPass, newPass };
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const { oldPass, newPass } = result.value;
+                    
+                    // التحقق من كلمة المرور الحالية
+                    const users = JSON.parse(localStorage.getItem('systar_users_fingerprint') || '[]');
+                    const userIndex = users.findIndex(u => u.username === currentUser.username);
+                    
+                    if (userIndex !== -1 && atob(users[userIndex].password) === oldPass) {
+                        users[userIndex].password = btoa(newPass);
+                        localStorage.setItem('systar_users_fingerprint', JSON.stringify(users));
+                        Swal.fire('تم التغيير', 'تم تغيير كلمة المرور بنجاح', 'success');
+                    } else {
+                        Swal.fire('خطأ', 'كلمة المرور الحالية غير صحيحة', 'error');
+                    }
+                }
+            });
+        }
+        
+        // نسخ احتياطي
+        function backupData() {
+            const data = {
+                subscribers: JSON.parse(localStorage.getItem('appData') || '{}').subscribers || [],
+                buyers: JSON.parse(localStorage.getItem('appData') || '{}').buyers || [],
+                appointments: JSON.parse(localStorage.getItem('appData') || '{}').appointments || [],
+                expenses: JSON.parse(localStorage.getItem('appData') || '{}').expenses || [],
+                settings: appData.settings,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `systar_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            Swal.fire('تم النسخ', 'تم تصدير النسخة الاحتياطية بنجاح', 'success');
+        }
+        
+        // استعادة بيانات
+        function restoreData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const restored = JSON.parse(event.target.result);
+                            // استعادة البيانات
+                            const appDataObj = JSON.parse(localStorage.getItem('appData') || '{}');
+                            if (restored.subscribers) appDataObj.subscribers = restored.subscribers;
+                            if (restored.buyers) appDataObj.buyers = restored.buyers;
+                            if (restored.appointments) appDataObj.appointments = restored.appointments;
+                            if (restored.expenses) appDataObj.expenses = restored.expenses;
+                            localStorage.setItem('appData', JSON.stringify(appDataObj));
+                            
+                            if (restored.settings) {
+                                appData.settings = restored.settings;
+                                saveSettings();
+                            }
+                            
+                            Swal.fire('تم الاستعادة', 'تم استعادة البيانات بنجاح', 'success').then(() => {
+                                location.reload();
+                            });
+                        } catch (err) {
+                            Swal.fire('خطأ', 'الملف غير صالح', 'error');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+        
+        // مسح جميع البيانات
+        function clearAllData() {
+            Swal.fire({
+                title: 'تحذير!',
+                text: 'هل أنت متأكد من مسح جميع البيانات؟ هذا الإجراء لا يمكن التراجع عنه',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، مسح الكل',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#ef4444'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('appData');
+                    localStorage.removeItem('systar_settings');
+                    Swal.fire('تم المسح', 'تم مسح جميع البيانات بنجاح', 'success').then(() => {
+                        location.reload();
+                    });
+                }
+            });
+        }
+        
+        // تسجيل الخروج
+        function logout() {
+            Swal.fire({
+                title: 'تسجيل الخروج',
+                text: 'هل أنت متأكد من تسجيل الخروج؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، تسجيل خروج',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#2c7873'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    localStorage.removeItem('systar_session');
+                    sessionStorage.removeItem('systar_session');
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+        
+        // ------------------- التنقل بين الصفحات -------------------
+        function navigateTo(page) {
+            if (page === 'dashboard') {
+                window.location.href = 'dashboard.html';
+            } else if (page === 'subscribers') {
+                window.location.href = 'dashboard.html#subscribers';
+            } else if (page === 'reports') {
+                window.location.href = 'dashboard.html#reports';
+            }
+        }
+        
+        // ------------------- ربط الأحداث -------------------
+        function bindEvents() {
+            // أزرار التبديل
+            document.getElementById('reminderToggle').addEventListener('click', () => {
+                appData.settings.reminderToggle = !appData.settings.reminderToggle;
+                saveSettings();
+                updateToggles();
+            });
+            
+            document.getElementById('debtToggle').addEventListener('click', () => {
+                appData.settings.debtToggle = !appData.settings.debtToggle;
+                saveSettings();
+                updateToggles();
+            });
+            
+            document.getElementById('weeklyToggle').addEventListener('click', () => {
+                appData.settings.weeklyToggle = !appData.settings.weeklyToggle;
+                saveSettings();
+                updateToggles();
+            });
+            
+            // إعدادات البيانات
+            document.getElementById('backupData').addEventListener('click', backupData);
+            document.getElementById('restoreData').addEventListener('click', restoreData);
+            document.getElementById('clearData').addEventListener('click', clearAllData);
+            
+            // إعدادات الحساب
+            document.getElementById('changePassword').addEventListener('click', changePassword);
+            document.getElementById('manageBiometric').addEventListener('click', toggleBiometric);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // زر الرجوع
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'dashboard.html';
+            });
+            
+            // التنقل السفلي
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const page = item.dataset.page;
+                    navigateTo(page);
+                });
+            });
+        }
+        
+        // ------------------- تهيئة الصفحة -------------------
+        async function init() {
+            loadData();
+            updateToggles();
+            await updateBiometricUI();
+            bindEvents();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
